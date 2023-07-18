@@ -42,7 +42,7 @@ func PrandtlPH(double pressure, double enthalpy) (float64, error) {
 	 h := convertToDefault(UNIT_SYSTEM.SPECIFIC_ENTHALPY, enthalpy)
 
 	try {
-		return Calculate.PrandtlPH(p, h);
+		return calculator.PrandtlPH(p, h);
 
 	} catch (OutOfRangeException e) {
 		throw e.convertFromDefault(UNIT_SYSTEM);

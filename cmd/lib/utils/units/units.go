@@ -103,7 +103,7 @@ var ENGINEERING UnitSystem = UnitSystem{
 	[]float64{1, 0},       // specific volume
 	[]float64{1, 0},       // speed of sound
 	[]float64{1, 0},       // surface tension
-	[]float64{1, IF97.T0}, // temperature
+	[]float64{1, constants.T0}, // temperature
 	[]float64{1e3, 0},     // thermal conductivity
 	[]float64{1, 0},       // thermal diffusivity
 	[]float64{1, 0},       // wavelength
@@ -278,6 +278,7 @@ func (us *UnitSystem) apply() {
 		setUnits(imperialUnits, UNITS)
 	} else {
 		fmt.Errorf("Unsupported unit system")
+		
 	}
 }
 
@@ -285,6 +286,7 @@ func getLabel(quantity quantity.Quantity) string {
 
 	if _, ok := UNITS[quantity]; !ok {
 		fmt.Errorf("Unknown label for quantity: " + quantity.String())
+		return fmt.Sprintf("Unknown label for quantity %s", quantity.String())
 	}
 	return fmt.Sprintf("%s [%s]", quantity.String(), getUnit(quantity))
 }

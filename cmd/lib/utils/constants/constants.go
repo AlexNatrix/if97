@@ -38,8 +38,7 @@ const (
 	Lbf = Lb * G
 	Psi = 1e-6 * Lbf / InSquare // pounds per square inch [MPa]
 
-	Ra = 5.0 / 9.0 // Rankine [K]
+	Ra  = 5.0 / 9.0 // Rankine [K]
+	T13 = T0 + 350
 	//Critical entropy [kJ/kg-K].
-	//sc = Region.REGION3.specificEntropyRhoT(rhoc, Tc);
-	//p0 = Region.REGION4.saturationPressureT(T0);
 )
