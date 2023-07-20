@@ -11,6 +11,7 @@ import (
  */
 
 const (
+	Name = "Region 1"
 	Tref = 1386
 	pRef = 16.53
 )
@@ -125,7 +126,7 @@ type FirstRegion struct {
  * @param tau dimensionless temperature
  * @return gamma
  */
-func Gamma(pi float64, tau float64) float64 {
+func gamma(pi float64, tau float64) float64 {
 
 	var out float64 = 0
 	var x = []float64{7.1 - pi, tau - 1.222}
@@ -143,7 +144,7 @@ func Gamma(pi float64, tau float64) float64 {
  * @param tau dimensionless temperature
  * @return d/dpi gamma
  */
-func GammaPi(pi float64, tau float64) float64 {
+func gammaPi(pi float64, tau float64) float64 {
 
 	var out float64 = 0
 	var x = []float64{7.1 - pi, tau - 1.222}
@@ -161,7 +162,7 @@ func GammaPi(pi float64, tau float64) float64 {
  * @param tau dimensionless temperature
  * @return d2/dpi2 gamma
  */
-func GammaPiPi(pi float64, tau float64) float64 {
+func gammaPiPi(pi float64, tau float64) float64 {
 
 	var out float64 = 0
 	var x = []float64{7.1 - pi, tau - 1.222}
@@ -179,7 +180,7 @@ func GammaPiPi(pi float64, tau float64) float64 {
  * @param tau dimensionless temperature
  * @return d/dpi d/dtau gamma
  */
-func GammaPiTau(pi float64, tau float64) float64 {
+func gammaPiTau(pi float64, tau float64) float64 {
 
 	var out float64 = 0
 	var x = []float64{7.1 - pi, tau - 1.222}
@@ -197,7 +198,7 @@ func GammaPiTau(pi float64, tau float64) float64 {
  * @param tau dimensionless temperature
  * @return d/dtau gamma
  */
-func GammaTau(pi float64, tau float64) float64 {
+func gammaTau(pi float64, tau float64) float64 {
 
 	var out float64 = 0
 	var x = []float64{7.1 - pi, tau - 1.222}
@@ -215,7 +216,7 @@ func GammaTau(pi float64, tau float64) float64 {
  * @param tau dimensionless temperature
  * @return d2/dtau2 gamma
  */
-func GammaTauTau(pi float64, tau float64) float64 {
+func gammaTauTau(pi float64, tau float64) float64 {
 
 	var out float64 = 0
 	var x = []float64{7.1 - pi, tau - 1.222}
@@ -231,9 +232,9 @@ func HeatCapacityRatioPT(pressure float64, temperature float64) float64 {
 
 	var pi float64 = pressure / pRef
 	var tau float64 = Tref / temperature
-	var x float64 = GammaPi(pi, tau) - tau*GammaPiTau(pi, tau)
+	var x float64 = gammaPi(pi, tau) - tau*gammaPiTau(pi, tau)
 
-	return 1 / (1 - x*x/(tau*tau*GammaPiPi(pi, tau)*GammaTauTau(pi, tau)))
+	return 1 / (1 - x*x/(tau*tau*gammaPiPi(pi, tau)*gammaTauTau(pi, tau)))
 }
 
 // @Override
@@ -241,10 +242,10 @@ func IsentropicExponentPT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 	tau := Tref / temperature
-	gPi := GammaPi(pi, tau)
-	gPiPi := GammaPiPi(pi, tau)
-	x := tau * tau * GammaTauTau(pi, tau)
-	y := gPi - tau*GammaPiTau(pi, tau)
+	gPi := gammaPi(pi, tau)
+	gPiPi := gammaPiPi(pi, tau)
+	x := tau * tau * gammaTauTau(pi, tau)
+	y := gPi - tau*gammaPiTau(pi, tau)
 
 	return -gPi * x / (pi * (gPiPi*x - y*y))
 }
@@ -255,7 +256,7 @@ func IsobaricCubicExpansionCoefficientPT(pressure float64, temperature float64) 
 	pi := pressure / pRef
 	tau := Tref / temperature
 
-	return (1 - tau*GammaPiTau(pi, tau)/GammaPi(pi, tau)) / temperature
+	return (1 - tau*gammaPiTau(pi, tau)/gammaPi(pi, tau)) / temperature
 }
 
 // @Override
@@ -264,7 +265,7 @@ func IsothermalCompressibilityPT(pressure float64, temperature float64) float64 
 	pi := pressure / pRef
 	tau := Tref / temperature
 
-	return -pi * GammaPiPi(pi, tau) / GammaPi(pi, tau) / pressure
+	return -pi * gammaPiPi(pi, tau) / gammaPi(pi, tau) / pressure
 }
 
 // @Override
@@ -284,7 +285,7 @@ func SpecificEnthalpyPT(pressure float64, temperature float64) float64 {
 
 	tau := Tref / temperature
 
-	return tau * GammaTau(pressure/pRef, tau) * constants.R * temperature
+	return tau * gammaTau(pressure/pRef, tau) * constants.R * temperature
 }
 
 // @Override
@@ -293,7 +294,7 @@ func SpecificEntropyPT(pressure float64, temperature float64) float64 {
 	pi := pressure / pRef
 	tau := Tref / temperature
 
-	return (tau*GammaTau(pi, tau) - Gamma(pi, tau)) * constants.R
+	return (tau*gammaTau(pi, tau) - gamma(pi, tau)) * constants.R
 }
 
 // @Override
@@ -307,7 +308,7 @@ func SpecificGibbsFreeEnergyPT(pressure float64, temperature float64) float64 {
 	pi := pressure / pRef
 	tau := Tref / temperature
 
-	return Gamma(pi, tau) * constants.R * temperature
+	return gamma(pi, tau) * constants.R * temperature
 }
 
 // @Override
@@ -316,7 +317,7 @@ func SpecificInternalEnergyPT(pressure float64, temperature float64) float64 {
 	pi := pressure / pRef
 	tau := Tref / temperature
 
-	return (tau*GammaTau(pi, tau) - pi*GammaPi(pi, tau)) * constants.R * temperature
+	return (tau*gammaTau(pi, tau) - pi*gammaPi(pi, tau)) * constants.R * temperature
 }
 
 // @Override
@@ -324,7 +325,7 @@ func SpecificIsobaricHeatCapacityPT(pressure float64, temperature float64) float
 
 	tau := Tref / temperature
 
-	return -tau * tau * GammaTauTau(pressure/pRef, tau) * constants.R
+	return -tau * tau * gammaTauTau(pressure/pRef, tau) * constants.R
 }
 
 // @Override
@@ -332,9 +333,9 @@ func SpecificIsochoricHeatCapacityPT(pressure float64, temperature float64) floa
 
 	pi := pressure / pRef
 	tau := Tref / temperature
-	x := GammaPi(pi, tau) - tau*GammaPiTau(pi, tau)
+	x := gammaPi(pi, tau) - tau*gammaPiTau(pi, tau)
 
-	return (-tau*tau*GammaTauTau(pi, tau) + x*x/GammaPiPi(pi, tau)) * constants.R
+	return (-tau*tau*gammaTauTau(pi, tau) + x*x/gammaPiPi(pi, tau)) * constants.R
 }
 
 // @Override
@@ -342,7 +343,7 @@ func SpecificVolumePT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 
-	return pi * GammaPi(pi, Tref/temperature) / 1e3 * constants.R * temperature / pressure
+	return pi * gammaPi(pi, Tref/temperature) / 1e3 * constants.R * temperature / pressure
 }
 
 // @Override
@@ -350,10 +351,10 @@ func SpeedOfSoundPT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 	tau := Tref / temperature
-	gPi := GammaPi(pi, tau)
-	x := gPi - tau*GammaPiTau(pi, tau)
+	gPi := gammaPi(pi, tau)
+	x := gPi - tau*gammaPiTau(pi, tau)
 
-	return math.Sqrt((gPi * gPi / (x*x/(tau*tau*GammaTauTau(pi, tau)) - GammaPiPi(pi, tau))) * 1e3 * constants.R * temperature)
+	return math.Sqrt((gPi * gPi / (x*x/(tau*tau*gammaTauTau(pi, tau)) - gammaPiPi(pi, tau))) * 1e3 * constants.R * temperature)
 }
 
 // @Override
@@ -382,4 +383,10 @@ func TemperaturePS(pressure float64, entropy float64) float64 {
 		out += ijn[2] * math.Pow(pressure, ijn[0]) * math.Pow(entropy+2, ijn[1])
 	}
 	return out
+}
+
+var Region1 = struct {
+	Name string
+}{
+	Name: Name,
 }

@@ -14,7 +14,7 @@ type IF97 struct {
 	UnitSystem int
 }
 
-func convertToDefault(quantity []float64, value float64) float64 {
+func ConvertToDefault(quantity []float64, value float64) float64 {
 	return value*quantity[0] + quantity[1]
 }
 

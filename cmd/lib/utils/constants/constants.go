@@ -38,7 +38,7 @@ const (
 	Lbf = Lb * G
 	Psi = 1e-6 * Lbf / InSquare // pounds per square inch [MPa]
 
-	Ra  = 5.0 / 9.0 // Rankine [K]
-	T13 = T0 + 350
-	//Critical entropy [kJ/kg-K].
+	Ra   = 5.0 / 9.0 // Rankine [K]
+	T13  = T0 + 350
+	S2bc = 5.85
 )

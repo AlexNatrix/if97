@@ -3,7 +3,6 @@ package thirdRegion
 import (
 	"math"
 
-	"github.com/google/go-cmp/cmp"
 	"if97.com/cmd/lib/utils/constants"
 )
 
@@ -381,6 +380,7 @@ var (
 )
 
 type SubRegion struct {
+	name  string
 	nuRed float64
 	pRed  float64
 	Tred  float64
@@ -391,9 +391,10 @@ type SubRegion struct {
 	E     float64
 	IJn   [][]float64
 }
-//a-k
+
+// a-k
 var (
-	a = SubRegion{0.0024, 100, 760, 0.085, 0.817, 1, 1, 1, [][]float64{
+	R3a = SubRegion{"R3a", 0.0024, 100, 760, 0.085, 0.817, 1, 1, 1, [][]float64{
 		{-12, 5, 00.110879558823853e-2},
 		{-12, 10, 0.572616740810616e3},
 		{-12, 12, -.767051948380852e5},
@@ -425,7 +426,7 @@ var (
 		{2, 0, 0.633828037528420e-2},
 		{2, 2, 0.797441793901017e-1}},
 	}
-	b = SubRegion{0.0041, 100, 860, 0.280, 0.779, 1, 1, 1, [][]float64{
+	R3b = SubRegion{"R3b", 0.0041, 100, 860, 0.280, 0.779, 1, 1, 1, [][]float64{
 		{-12, 10, -0.827670470003621e-1},
 		{-12, 12, 0.416887126010565e2},
 		{-10, 8, 0.483651982197059e-1},
@@ -460,7 +461,7 @@ var (
 		{4, 1, 0.128369435967012}},
 	}
 
-	c = SubRegion{0.0022, 40, 690, 0.259, 0.903, 1, 1, 1, [][]float64{
+	R3c = SubRegion{"R3c", 0.0022, 40, 690, 0.259, 0.903, 1, 1, 1, [][]float64{
 		{-12, 6, 0.311967788763030e1},
 		{-12, 8, 0.276713458847564e5},
 		{-12, 10, 0.322583103403269e8},
@@ -497,7 +498,7 @@ var (
 		{3, 7, -0.107077716660869e7},
 		{8, 1, 0.438319858566475e-1}},
 	}
-	d = SubRegion{0.0029, 40, 690, 0.559, 0.939, 1, 1, 4, [][]float64{
+	R3d = SubRegion{"R3d", 0.0029, 40, 690, 0.559, 0.939, 1, 1, 4, [][]float64{
 		{-12, 4, -4.52484847171645e-10},
 		{-12, 6, 3.15210389538801e-5},
 		{-12, 7, -2.14991352047545e-3},
@@ -537,7 +538,7 @@ var (
 		{1, 6, 4.98044171727877e3},
 		{3, 0, 5.51478022765087e-3}},
 	}
-	e = SubRegion{0.0032, 40, 710, 0.587, 0.918, 1, 1, 1, [][]float64{
+	R3e = SubRegion{"R3e", 0.0032, 40, 710, 0.587, 0.918, 1, 1, 1, [][]float64{
 		{-12, 14, 0.715815808404721e9},
 		{-12, 16, -.114328360753449e12},
 		{-10, 3, 0.376531002015720e-11},
@@ -568,7 +569,7 @@ var (
 		{2, 0, 0.413197481515899},
 		{2, 2, -.341931835910405e2}},
 	}
-	f = SubRegion{0.0064, 40, 730, 0.587, 0.891, 0.5, 1, 4, [][]float64{
+	R3f = SubRegion{"R3f", 0.0064, 40, 730, 0.587, 0.891, 0.5, 1, 4, [][]float64{
 		{0, -3, -.251756547792325e-7},
 		{0, -2, 0.601307193668763e-5},
 		{0, -1, -.100615977450049e-2},
@@ -612,7 +613,7 @@ var (
 		{28, -12, 0.189424143498011e-9},
 		{32, -12, -.486632965074563e-9}},
 	}
-	g = SubRegion{0.0027, 25, 660, 0.872, 0.971, 1, 1, 4, [][]float64{
+	R3g = SubRegion{"R3g", 0.0027, 25, 660, 0.872, 0.971, 1, 1, 4, [][]float64{
 		{-12, 7, 0.412209020652996e-4},
 		{-12, 12, -.114987238280587e7},
 		{-12, 14, 0.948180885032080e10},
@@ -652,7 +653,7 @@ var (
 		{10, 0, -.367279669545448e5},
 		{10, 6, -.837513931798655e16}},
 	}
-	h = SubRegion{0.0032, 25, 660, 0.898, 0.983, 1, 1, 4, [][]float64{
+	R3h = SubRegion{"R3h", 0.0032, 25, 660, 0.898, 0.983, 1, 1, 4, [][]float64{
 		{-12, 8, .561379678887577e-1},
 		{-12, 12, .774135421587083e10},
 		{-10, 4, .111482975877938e-8},
@@ -683,7 +684,7 @@ var (
 		{1, 0, -.211346402240858},
 		{1, 2, .249971752957491e2}},
 	}
-	i = SubRegion{0.0041, 25, 660, 0.910, 0.984, 0.5, 1, 4, [][]float64{
+	R3i = SubRegion{"R3i", 0.0041, 25, 660, 0.910, 0.984, 0.5, 1, 4, [][]float64{
 		{0, 0, .106905684359136e1},
 		{0, 1, -.148620857922333e1},
 		{0, 10, .259862256980408e15},
@@ -727,7 +728,7 @@ var (
 		{36, -10, -.247690616026922e-1},
 		{36, -8, .658110546759474e2}},
 	}
-	j = SubRegion{0.0054, 25, 670, 0.875, 0.964, 0.5, 1, 4, [][]float64{
+	R3j = SubRegion{"R3j", 0.0054, 25, 670, 0.875, 0.964, 0.5, 1, 4, [][]float64{
 		{0, -1, -.111371317395540e-3},
 		{0, 0, .100342892423685e1},
 		{0, 1, .530615581928979e1},
@@ -759,7 +760,7 @@ var (
 		{28, -5, .270929002720228e1}},
 	}
 
-	k = SubRegion{0.0077, 25, 680, 0.802, 0.935, 1, 1, 1, [][]float64{
+	R3k = SubRegion{"R3k", 0.0077, 25, 680, 0.802, 0.935, 1, 1, 1, [][]float64{
 		{-2, 10, -.401215699576099e9},
 		{-2, 12, .484501478318406e11},
 		{-1, -5, .394721471363678e-14},
@@ -796,9 +797,10 @@ var (
 		{12, -10, .541449377329581e-8}},
 	}
 )
-//l-s
+
+// l-s
 var (
-	l = SubRegion{0.0026, 24, 650, 0.908, 0.989, 1, 1, 4, [][]float64{
+	R3l = SubRegion{"R3l", 0.0026, 24, 650, 0.908, 0.989, 1, 1, 4, [][]float64{
 		{-12, 14, .260702058647537e10},
 		{-12, 16, -.188277213604704e15},
 		{-12, 18, .554923870289667e19},
@@ -843,7 +845,7 @@ var (
 		{10, 12, -.445703369196945e33},
 		{14, 10, .642794932373694e33}},
 	}
-	m = SubRegion{0.0028, 23, 650, 1.000, 0.997, 1, 0.25, 1, [][]float64{
+	R3m = SubRegion{"R3m", 0.0028, 23, 650, 1.000, 0.997, 1, 0.25, 1, [][]float64{
 		{0, 0, .811384363481847},
 		{3, 0, -.568199310990094e4},
 		{8, 0, -.178657198172556e11},
@@ -885,7 +887,7 @@ var (
 		{14, 36, -.128617899887675e49},
 		{24, 36, .479817895699239e65}},
 	}
-	n = SubRegion{0.0031, 23, 650, 0.976, 0.997, math.NaN(), math.NaN(), math.NaN(), [][]float64{
+	R3n = SubRegion{"R3n", 0.0031, 23, 650, 0.976, 0.997, math.NaN(), math.NaN(), math.NaN(), [][]float64{
 		{0, -12, .280967799943151e-38},
 		{3, -12, .614869006573609e-30},
 		{4, -12, .582238667048942e-27},
@@ -926,7 +928,7 @@ var (
 		{0, 5, .354542769185671e12},
 		{1, 6, .400849240129329e15}},
 	}
-	o = SubRegion{0.0034, 23, 650, 0.974, 0.996, 0.5, 1, 1, [][]float64{
+	R3o = SubRegion{"R3o", 0.0034, 23, 650, 0.974, 0.996, 0.5, 1, 1, [][]float64{
 		{0, -12, .128746023979718e-34},
 		{0, -4, -.735234770382342e-11},
 		{0, -1, .289078692149150e-2},
@@ -953,9 +955,10 @@ var (
 		{24, -12, -.516720236575302e-10}},
 	}
 )
-//p(pSub) -t
+
+// p(pSub) -t
 var (
-	pSub = SubRegion{0.0041, 23, 650, 0.972, 0.997, 0.5, 1, 1, [][]float64{
+	R3p = SubRegion{"R3p", 0.0041, 23, 650, 0.972, 0.997, 0.5, 1, 1, [][]float64{
 		{0, -1, -.982825342010366e-4},
 		{0, 0, .105145700850612e1},
 		{0, 1, .116033094095084e3},
@@ -984,7 +987,7 @@ var (
 		{24, -8, .179946628317437e-2},
 		{36, -12, -.345042834640005e-3}},
 	}
-	q = SubRegion{0.0022, 23, 650, 0.848, 0.983, 1, 1, 4, [][]float64{
+	R3q = SubRegion{"R3q", 0.0022, 23, 650, 0.848, 0.983, 1, 1, 4, [][]float64{
 		{-12, 10, -.820433843259950e5},
 		{-12, 12, .473271518461586e11},
 		{-10, 6, -.805950021005413e-1},
@@ -1010,7 +1013,7 @@ var (
 		{1, 1, .247795908411492e1},
 		{1, 3, -.319114969006533e4}},
 	}
-	r = SubRegion{0.0054, 23, 650, 0.874, 0.982, 1, 1, 1, [][]float64{
+	R3r = SubRegion{"R3r", 0.0054, 23, 650, 0.874, 0.982, 1, 1, 1, [][]float64{
 		{-8, 6, .144165955660863e-2},
 		{-8, 14, -.701438599628258e13},
 		{-3, -3, -.830946716459219e-16},
@@ -1039,7 +1042,7 @@ var (
 		{12, -12, -.337209709340105e-9},
 		{14, -12, .377501980025469e-8}},
 	}
-	s = SubRegion{0.0022, 21, 640, 0.886, 0.990, 1, 1, 4, [][]float64{
+	R3s = SubRegion{"R3s", 0.0022, 21, 640, 0.886, 0.990, 1, 1, 4, [][]float64{
 		{-12, 20, -.532466612140254e23},
 		{-12, 24, .100415480000824e32},
 		{-10, 22, -.191540001821367e30},
@@ -1070,8 +1073,8 @@ var (
 		{5, 4, .193568768917797e10},
 		{14, 24, .950898170425042e54}},
 	}
-	
-		t = SubRegion{0.0088, 20, 650, 0.803, 1.020, 1, 1, 1, [][]float64{
+
+	R3t = SubRegion{"R3t", 0.0088, 20, 650, 0.803, 1.020, 1, 1, 1, [][]float64{
 		{0, 0, .155287249586268e1},
 		{0, 1, .664235115009031e1},
 		{0, 4, -.289366236727210e4},
@@ -1108,11 +1111,10 @@ var (
 	}
 )
 
-
-//u-z
+// u-z
 // Auxiliary equations
 var (
-	u = SubRegion{0.0026, 23, 650, 0.902, 0.988, 1, 1, 1, [][]float64{
+	R3u = SubRegion{"R3u", 0.0026, 23, 650, 0.902, 0.988, 1, 1, 1, [][]float64{
 		{-12, 14, .122088349258355e18},
 		{-10, 10, .104216468608488e10},
 		{-10, 12, -.882666931564652e16},
@@ -1153,7 +1155,7 @@ var (
 		{14, 6, -.781754507698846e28}},
 	}
 
-	v = SubRegion{0.0031, 23, 650, 0.960, 0.995, 1, 1, 1, [][]float64{
+	R3v = SubRegion{"R3v", 0.0031, 23, 650, 0.960, 0.995, 1, 1, 1, [][]float64{
 		{-10, -8, -.415652812061591e-54},
 		{-8, -12, .177441742924043e-60},
 		{-6, -12, -.357078668203377e-54},
@@ -1195,7 +1197,7 @@ var (
 		{14, 1, .247761392329058e27}},
 	}
 
-	w = SubRegion{0.0039, 23, 650, 0.959, 0.995, 1, 1, 4, [][]float64{
+	R3w = SubRegion{"R3w", 0.0039, 23, 650, 0.959, 0.995, 1, 1, 4, [][]float64{
 		{-12, 8, -.586219133817016e-7},
 		{-12, 14, -.894460355005526e11},
 		{-10, -1, .531168037519774e-30},
@@ -1232,7 +1234,7 @@ var (
 		{10, -12, .266170454405981e-13},
 		{10, -8, .858133791857099e-5}}}
 
-	x = SubRegion{0.0049, 23, 650, 0.910, 0.988, 1, 1, 1, [][]float64{
+	R3x = SubRegion{"R3x", 0.0049, 23, 650, 0.910, 0.988, 1, 1, 1, [][]float64{
 		{-8, 14, .377373741298151e19},
 		{-6, 10, -.507100883722913e13},
 		{-5, 10, -.103363225598860e16},
@@ -1270,7 +1272,7 @@ var (
 		{14, -8, -.119228759669889e4},
 		{14, -6, .430867658061468e7}}}
 
-	y = SubRegion{0.0031, 22, 650, 0.996, 0.994, 1, 1, 4, [][]float64{
+	R3y = SubRegion{"R3y", 0.0031, 22, 650, 0.996, 0.994, 1, 1, 4, [][]float64{
 		{0, -3, -.525597995024633e-9},
 		{0, 1, .583441305228407e4},
 		{0, 5, -.134778968457925e17},
@@ -1291,7 +1293,7 @@ var (
 		{8, -2, -.937808169550193e14},
 		{10, -5, .514411468376383e10},
 		{12, -8, -.828198594040141e5}}}
-	z = SubRegion{0.0038, 22, 650, 0.993, 0.994, 1, 1, 4, [][]float64{
+	R3z = SubRegion{"R3z", 0.0038, 22, 650, 0.993, 0.994, 1, 1, 4, [][]float64{
 		{-8, 3, .244007892290650e-10},
 		{-6, 6, -.463057430331242e7},
 		{-5, 6, .728803274777712e10},
@@ -1317,23 +1319,80 @@ var (
 		{8, -4, .394536049497068e7}}}
 )
 
+var (
+	nR4 = []float64{
+		00.11670521452767e4,
+		-0.72421316703206e6,
+		-0.17073846940092e2,
+		00.12020824702470e5,
+		-0.32325550322333e7,
+		00.14915108613530e2,
+		-0.48232657361591e4,
+		00.40511340542057e6,
+		-0.23855557567849,
+		00.65017534844798e3}
+)
+
+/**
+ * Saturation temperature.
+ *
+ * Out-of-range exceptions not thrown because this method is also used for
+ * finding regions.
+ *
+ * @param saturationPressure saturation pressure [MPa]
+ * @return saturation temperature [K]
+ */
+func SaturationTemperaturePR4(saturationPressure float64) float64 {
+
+	beta := math.Pow(saturationPressure/1, 0.25)
+	beta2 := beta * beta
+	E := beta2 + nR4[2]*beta + nR4[5]
+	F := nR4[0]*beta2 + nR4[3]*beta + nR4[6]
+	G := nR4[1]*beta2 + nR4[4]*beta + nR4[7]
+	D := 2 * G / (-F - math.Sqrt(F*F-4*E*G))
+	n9plusD := nR4[9] + D
+
+	return (n9plusD - math.Sqrt(n9plusD*n9plusD-4*(nR4[8]+nR4[9]*D))) / 2 * 1
+}
+
+/**
+ * Saturation pressure.
+ *
+ * Out-of-range exceptions not thrown because this method is also used for
+ * finding regions.
+ *
+ * @param saturationTemperature saturation temperature [K]
+ * @return saturation pressure [MPa]
+ */
+func SaturationPressureTR4(saturationTemperature float64) float64 {
+
+	Ts_Tref := saturationTemperature / 1
+	theta := Ts_Tref + nR4[8]/(Ts_Tref-nR4[9])
+	theta2 := theta * theta
+	A := theta2 + nR4[0]*theta + nR4[1]
+	B := nR4[2]*theta2 + nR4[3]*theta + nR4[4]
+	C := nR4[5]*theta2 + nR4[6]*theta + nR4[7]
+
+	return math.Pow(2*C/(-B+math.Sqrt(B*B-4*A*C)), 4) * 1
+}
+
 var sc = SpecificEntropyRhoT(constants.Rhoc, constants.Tc)
 
-func getSubRegionS(entropy float64) SubRegion {
+func getSubRegionS(entropy float64) string {
 	if entropy > sc {
-		return b
+		return "R3b"
 	}
-	return a
+	return "R3a"
 }
 
-func getSubRegionPH(pressure float64, enthalpy float64) SubRegion {
-	if enthalpy < enthalpy3ab(pressure) {
-		return a
+func getSubRegionPH(pressure float64, enthalpy float64) string {
+	if enthalpy < Enthalpy3ab(pressure) {
+		return "R3a"
 	}
-	return b
+	return "R3b"
 }
 
-func enthalpy3ab(pressure float64) float64 {
+func Enthalpy3ab(pressure float64) float64 {
 
 	var out float64 = 0
 	pi := pressure
@@ -1646,11 +1705,11 @@ func IsothermalStressCoefficientRhoT(rho float64, T float64) float64 {
 // @Override
 func PressureHS(h float64, s float64) float64 {
 
-	switch {
-	case cmp.Equal(getSubRegionS(s), a):
+	switch getSubRegionS(s) {
+	case "R3a":
 		return piA(h/2300, s/4.4) * 99
 
-	case cmp.Equal(getSubRegionS(s), b):
+	case "R3b":
 		return piB(h/2800, s/5.3) * 16.6
 
 	default:
@@ -1782,11 +1841,11 @@ func SpecificVolumePH(pressure float64, enthalpy float64) float64 {
 
 	pi := pressure / 100
 
-	switch {
-	case cmp.Equal(a, getSubRegionPH(pressure, enthalpy)):
+	switch getSubRegionPH(pressure, enthalpy) {
+	case "R3a":
 		return omegaA(pi, enthalpy/2100) * 0.0028
 
-	case cmp.Equal(getSubRegionPH(pressure, enthalpy), b):
+	case "R3b":
 		return omegaB(pi, enthalpy/2800) * 0.0088
 
 	default:
@@ -1801,12 +1860,12 @@ func SpecificVolumePS(pressure float64, entropy float64) float64 {
 	var x []float64
 	var IJn [][]float64
 
-	switch {
-	case cmp.Equal(a, getSubRegionS(entropy)):
+	switch getSubRegionS(entropy) {
+	case "R3a":
 		x = []float64{pressure/100 + 0.187, entropy/4.4 - 0.755, 0.0028}
 		IJn = IJnOa
 
-	case cmp.Equal(getSubRegionS(entropy), b):
+	case "R3b":
 		x = []float64{pressure/100 + 0.298, entropy/5.3 - 0.816, 0.0088}
 		IJn = IJnOb
 
@@ -1819,8 +1878,8 @@ func SpecificVolumePS(pressure float64, entropy float64) float64 {
 	return omega * x[2]
 }
 
-var T13 float64 = IF97.T0 + 350                     // temperature boundary between region 1 and 3 (623.15 K) [K]
-var ps13 float64 = REGION4.saturationPressureT(T13) // (16.529 MPa) [MPa]
+var T13 float64 = constants.T0 + 350          // temperature boundary between region 1 and 3 (623.15 K) [K]
+var ps13 float64 = SaturationPressureTR4(T13) // (16.529 MPa) [MPa]
 
 // @Override
 func SpecificVolumePT(p float64, T float64) float64 {
@@ -1831,8 +1890,8 @@ func SpecificVolumePT(p float64, T float64) float64 {
 	p3cd := 19.00881189
 	var theta float64
 	logPi := math.Log(pi)
-	ps643 := REGION4.saturationPressureT(643.15)
-	Ts := REGION4.saturationTemperatureP(p)
+	ps643 := SaturationPressureTR4(643.15)
+	Ts := SaturationTemperaturePR4(p)
 	var In [][]float64
 
 	/*
@@ -1991,133 +2050,136 @@ func SpecificVolumePT(p float64, T float64) float64 {
 			if T <= Ts {
 				if 21.93161551 < p {
 					if T <= T3uv {
-						subRegion = u
+						subRegion = R3u
+					} else {
+						subRegion = R3y
 					}
-					subRegion = y
 				} else {
-					subRegion = u
+					subRegion = R3u
 				}
 			} else if 21.90096265 < p {
 				if T <= T3wx {
-					subRegion = z
+					subRegion = R3z
+				} else {
+					subRegion = R3x
 				}
-				subRegion = x
 			} else {
-				subRegion = x
+				subRegion = R3x
 			}
 		} else if p <= 22.11 {
 			if T > T3wx {
-				subRegion = x
+				subRegion = R3x
 			} else if T > T3ef {
-				subRegion = z
+				subRegion = R3z
 			} else if T > T3uv {
-				subRegion = y
+				subRegion = R3y
 			} else {
-				subRegion = u
+				subRegion = R3u
 			}
 		} else if T > T3wx {
-			subRegion = x
+			subRegion = R3x
 		} else if T > T3ef {
-			subRegion = w
+			subRegion = R3w
 		} else if T > T3uv {
-			subRegion = v
+			subRegion = R3v
 		} else {
-			subRegion = u
+			subRegion = R3u
 		}
 	} else if 40 < p {
 		if T <= T3ab {
-			subRegion = a
+			subRegion = R3a
+		} else {
+			subRegion = R3b
 		}
-		subRegion = b
 	} else if 25 < p {
 		if T <= T3cd {
-			subRegion = c
+			subRegion = R3c
 		} else if T <= T3ab {
-			subRegion = d
+			subRegion = R3d
 		} else if T <= T3ef {
-			subRegion = e
+			subRegion = R3e
 		} else {
-			subRegion = f
+			subRegion = R3f
 		}
 	} else if 23.5 < p {
 		if T <= T3cd {
-			subRegion = c
+			subRegion = R3c
 		} else if T <= T3gh {
-			subRegion = g
+			subRegion = R3g
 		} else if T <= T3ef {
-			subRegion = h
+			subRegion = R3h
 		} else if T <= T3ij {
-			subRegion = i
+			subRegion = R3i
 		} else if T <= T3jk {
-			subRegion = j
+			subRegion = R3j
 		} else {
-			subRegion = k
+			subRegion = R3k
 		}
 	} else if 23 < p {
 		if T <= T3cd {
-			subRegion = c
+			subRegion = R3c
 		} else if T <= T3gh {
-			subRegion = l
+			subRegion = R3l
 		} else if T <= T3ef {
-			subRegion = h
+			subRegion = R3h
 		} else if T <= T3ij {
-			subRegion = i
+			subRegion = R3i
 		} else if T <= T3jk {
-			subRegion = j
+			subRegion = R3j
 		} else {
-			subRegion = k
+			subRegion = R3k
 		}
 	} else if 22.5 < p {
 		if T <= T3cd {
-			subRegion = c
+			subRegion = R3c
 		} else if T <= T3gh {
-			subRegion = l
+			subRegion = R3l
 		} else if T <= T3mn {
-			subRegion = m
+			subRegion = R3m
 		} else if T <= T3ef {
-			subRegion = n
+			subRegion = R3n
 		} else if T <= T3op {
-			subRegion = o
+			subRegion = R3o
 		} else if T <= T3ij {
-			subRegion = pSub
+			subRegion = R3p
 		} else if T <= T3jk {
-			subRegion = j
+			subRegion = R3j
 		} else {
-			subRegion = k
+			subRegion = R3k
 		}
 	} else if ps643 < p {
 		if T <= T3cd {
-			subRegion = c
+			subRegion = R3c
 		} else if T <= T3qu {
-			subRegion = q
+			subRegion = R3q
 		} else if T3rx < T && T <= T3jk {
-			subRegion = r
+			subRegion = R3r
 		} else {
-			subRegion = k
+			subRegion = R3k
 		}
 	} else if 20.5 < p {
 		if T <= T3cd {
-			subRegion = c
+			subRegion = R3c
 		} else if T <= Ts {
-			subRegion = s
+			subRegion = R3s
 		} else if T <= T3jk {
-			subRegion = r
+			subRegion = R3r
 		} else {
-			subRegion = k
+			subRegion = R3k
 		}
 	} else if p3cd < p {
 		if T <= T3cd {
-			subRegion = c
+			subRegion = R3c
 		} else if T <= Ts {
-			subRegion = s
+			subRegion = R3s
 		} else {
-			subRegion = t
+			subRegion = R3t
 		}
 	} else if ps13 < p {
 		if T <= Ts {
-			subRegion = c
+			subRegion = R3c
 		}
-		subRegion = t
+		subRegion = R3t
 	} else {
 		return math.NaN()
 	}
@@ -2129,8 +2191,8 @@ func SpecificVolumePT(p float64, T float64) float64 {
 	*/
 	var x []float64
 
-	switch {
-	case cmp.Equal(n, subRegion):
+	switch subRegion.name {
+	case "R3n":
 		x = []float64{pi - subRegion.A, theta - subRegion.B}
 
 		for _, ijn := range subRegion.IJn {
@@ -2177,10 +2239,10 @@ func TemperatureHS(enthalpy float64, entropy float64) float64 {
 // @Override
 func TemperaturePH(pressure float64, enthalpy float64) float64 {
 
-	switch {
-	case cmp.Equal(a, getSubRegionPH(pressure, enthalpy)):
+	switch getSubRegionPH(pressure, enthalpy) {
+	case "R3a":
 		return thetaA(pressure/100, enthalpy/2300) * 760
-	case cmp.Equal(getSubRegionPH(pressure, enthalpy), b):
+	case "R3b":
 		return thetaB(pressure/100, enthalpy/2800) * 860
 	default:
 		panic("Unsupported subregion: TemperaurePh Region 3")
@@ -2193,13 +2255,13 @@ func TemperaturePS(pressure float64, entropy float64) float64 {
 	var theta float64 = 0
 	var x []float64
 	var IJn [][]float64
-	switch {
-	case cmp.Equal(a, getSubRegionS(entropy)):
+	switch getSubRegionS(entropy) {
+	case "R3a":
 		x = []float64{pressure/100 + 0.240, entropy/4.4 - 0.703, 760}
 		IJn = IJnTa
 		break
 
-	case cmp.Equal(a, getSubRegionS(entropy)):
+	case "R3b":
 		x = []float64{pressure/100 + 0.760, entropy/5.3 - 0.818, 860}
 		IJn = IJnTb
 		break
