@@ -3,11 +3,15 @@ package region
 import (
 	"math"
 
+	"if97.com/cmd/lib/fifthRegion"
 	"if97.com/cmd/lib/firstRegion"
 	"if97.com/cmd/lib/fourthRegion"
+	rangeError "if97.com/cmd/lib/region/RangeError"
 	"if97.com/cmd/lib/secondRegion"
 	"if97.com/cmd/lib/thirdRegion"
 	"if97.com/cmd/lib/utils/constants"
+	"if97.com/cmd/lib/utils/quantity"
+	"if97.com/cmd/lib/utils/units"
 )
 
 const (
@@ -16,16 +20,20 @@ const (
 	T13  = constants.T0 + 350  // temperature boundary between region 1 and 3 (623.15 K) [K]
 	T25  = constants.T0 + 800  // temperature boundary between region 2 and 5 (1073.15 K) [K]
 	T5   = constants.T0 + 2000 // upper temperature boundary of region 5 (2273.15 K) [K]
-	//s2   = REGION2.specificEntropyPT(IF97.p0, IF97.T0)
+	
 	s2bc = 5.85
-	// ps13 = REGION4.saturationPressureT(T13) // (16.529 MPa) [MPa]
-	// hs13 = REGION1.specificEnthalpyPT(ps13, T13)
-	// ss13 = REGION1.specificEntropyPT(ps13, T13)
-	// hs23 = REGION2.specificEnthalpyPT(ps13, T13)
-	// ss23 = REGION2.specificEntropyPT(ps13, T13)
 )
 
 var (
+	
+	p0   = fourthRegion.REGION4.SaturationPressureT(constants.T0)
+	ps13 = fourthRegion.REGION4.SaturationPressureT(T13) // (16.529 MPa) [MPa]
+	hs13 = firstRegion.REGION1.SpecificEnthalpyPT(ps13, T13)
+	ss13 = firstRegion.REGION1.SpecificEntropyPT(ps13, T13)
+	hs23 = secondRegion.REGION2.SpecificEnthalpyPT(ps13, T13)
+	ss23 = secondRegion.REGION2.SpecificEntropyPT(ps13, T13)
+	s2   = secondRegion.REGION2.SpecificEntropyPT(p0, constants.T0)
+	sc = thirdRegion.REGION3.SpecificEntropyRhoT(constants.Rhoc, constants.Tc)
 	nB23 = []float64{
 		0.34805185628969e3,
 		-.11671859879975e1,
@@ -35,8 +43,10 @@ var (
 	}
 )
 
+
+
 type Region interface {
-	getName() string
+	GetName() string
 	/**
 	 * Heat capacity ratio.
 	 *
@@ -104,7 +114,7 @@ type Region interface {
 	 * @param T temperature [K]
 	 * @return specific entropy [kJ/kg-K]
 	 */
-	SpecificEntropyRhoT(rho float64, T float64)
+	SpecificEntropyRhoT(rho float64, T float64)float64
 
 	/**
 	 * Specific Gibbs Free Energy.
@@ -187,14 +197,32 @@ type Region interface {
 	TemperaturePS(p float64, s float64) float64
 }
 
+
+var Select map[int]Region = map[int]Region{
+	1:&firstRegion.REGION1,
+	2:&secondRegion.REGION2,
+	3:&thirdRegion.REGION3,
+	4:&fourthRegion.REGION4,
+	5:&fifthRegion.REGION5,
+	
+}
+
 type IF97Region struct {
-	Name string
+	Name string;
 	Region
 }
 
-func get(r Region) {
-
+var IF97reg IF97Region = IF97Region{
+	"",
+	&firstRegion.REGION1,
 }
+
+
+
+
+
+
+
 
 /**
  * Auxiliary equation for the boundary between regions 2 and 3.
@@ -291,7 +319,7 @@ func (r *IF97Region) SpecificVolumeHS(h float64, s float64) float64 {
  * @return specific volume [m&sup3;/kg]
  * @throws OutOfRangeException out-of-range exception
  */
-func (r *IF97Region) specificVolumePH(p float64, h float64) float64 {
+func (r *IF97Region) SpecificVolumePH(p float64, h float64) float64 {
 
 	T := r.TemperaturePH(p, h)
 
@@ -306,7 +334,7 @@ func (r *IF97Region) specificVolumePH(p float64, h float64) float64 {
  * @return specific volume [m&sup3;/kg]
  * @throws OutOfRangeException out-of-range exception
  */
-func (r *IF97Region) specificVolumePS(p float64, s float64) float64 {
+func (r *IF97Region) SpecificVolumePS(p float64, s float64) float64 {
 
 	T := r.TemperaturePS(p, s)
 
@@ -522,7 +550,7 @@ func pressureB23(T float64) float64 {
  * @return region
  * @throws OutOfRangeException out-of-range exception
  */
-func getRegionHS(enthalpy float64, entropy float64) (int, error) {
+func (r *IF97Region) GetRegionHS(enthalpy float64, entropy float64) (int, error) {
 
 	hB23limits := []float64{2.563592004e3, 2.812942061e3}
 	sB23limits := []float64{5.048096828, 5.260578707}
@@ -530,88 +558,94 @@ func getRegionHS(enthalpy float64, entropy float64) (int, error) {
 	/*
 	   Outer boundary Checks
 	*/
-	s1 := firstRegion.SpecificEntropyPT(p132, constants.T0)
-	s2 := secondRegion.SpecificEntropyPT(p132, T25)
+	s1 := firstRegion.REGION1.SpecificEntropyPT(p132, constants.T0)
+	s2 := secondRegion.REGION2.SpecificEntropyPT(p132, T25)
 
 	h1 := []float64{
-		firstRegion.SpecificEnthalpyPT(constants.p0, constants.T0),
-		firstRegion.SpecificEnthalpyPT(p132, constants.T0)}
+		firstRegion.REGION1.SpecificEnthalpyPT(p0, constants.T0),
+		firstRegion.REGION1.SpecificEnthalpyPT(p132, constants.T0)}
 
 	if enthalpy < h1[0] {
-		return -1, nil
-		//throw new OutOfRangeException(IF97.Quantity.h, enthalpy, h1[0]);
+		return -1, rangeError.ErrorFromValue(quantity.H, enthalpy, h1[0])
 
 	} else if entropy < 4.7516100567e-4 {
-		p1 := firstRegion.PressureHS(enthalpy, entropy)
+		p1 := firstRegion.REGION1.PressureHS(enthalpy, entropy)
 
-		if firstRegion.TemperaturePH(p1, enthalpy)+0.024 < constants.T0 {
-			return -1, nil
-			//throw new OutOfRangeException(IF97.Quantity.s, entropy,
-			//REGION1.specificEntropyPT(p1, IF97.T0));
+		if firstRegion.REGION1.TemperaturePH(p1, enthalpy)+0.024 < constants.T0 {
+			return -1, rangeError.ErrorFromValue(quantity.S, entropy,firstRegion.REGION1.SpecificEntropyPT(p1, constants.T0))
+
 		}
 	}
 	if s1 <= entropy && entropy <= s2 {
-		if entropy <= firstRegion.SpecificEntropyPT(p132, T13) {
-			h1Lim := firstRegion.SpecificEnthalpyPT(
-				p132, firstRegion.TemperaturePS(p132, entropy),
+		if entropy <= firstRegion.REGION1.SpecificEntropyPT(p132, T13) {
+			h1Lim := firstRegion.REGION1.SpecificEnthalpyPT(
+				p132, firstRegion.REGION1.TemperaturePS(p132, entropy),
 			)
 
 			if enthalpy > h1Lim {
-				return -1, nil
-				//throw new OutOfRangeException(IF97.Quantity.h, enthalpy, h1Lim);
+				return -1, rangeError.ErrorFromValue(quantity.H, enthalpy, h1Lim)
+
 			}
-		} else if entropy <= secondRegion.SpecificEntropyPT(p132, 863.15) {
-			rho := 1.0 / thirdRegion.SpecificVolumePS(p132, entropy)
-			T := thirdRegion.TemperaturePS(p132, entropy)
-			hLim := thirdRegion.SpecificEnthalpyRhoT(rho, T)
+		} else if entropy <= secondRegion.REGION2.SpecificEntropyPT(p132, 863.15) {
+			rho := 1.0 / thirdRegion.REGION3.SpecificVolumePS(p132, entropy)
+			T := thirdRegion.REGION3.TemperaturePS(p132, entropy)
+			hLim := thirdRegion.REGION3.SpecificEnthalpyRhoT(rho, T)
 
 			if enthalpy > hLim {
-				return -1, nil
-				//throw new OutOfRangeException(IF97.Quantity.h, enthalpy, hLim);
+				return -1, rangeError.ErrorFromValue(quantity.H, enthalpy, hLim)
+
 			}
-		} else { //TODO Finish getRegionHS boundary checks
 		}
 	}
-
 	/*
 	   Select Region
 	*/
 	if entropy <= 3.778281340 {
 		// region 1, 3, or 4
 		if enthalpy <= specificEnthalpy1(entropy) {
+			r.Region = &fourthRegion.REGION4
 			return 4, nil
 
 		} else if enthalpy > specificEnthalpyB13(entropy) {
+			r.Region = &thirdRegion.REGION3
 			return 3, nil
 
 		} else {
+			r.Region = &firstRegion.REGION1
 			return 1, nil
 		}
-	} else if entropy <= constants.sc {
+	} else if entropy <= sc {
 		// region 3 or 4
 		if enthalpy > specificEnthalpy3a(entropy) {
+			r.Region = &thirdRegion.REGION3
 			return 3, nil
 		} else {
+			r.Region = &fourthRegion.REGION4
 			return 4, nil
 		}
 	} else if entropy < s2bc {
 		if enthalpy <= specificEnthalpy2c3b(entropy) {
+			r.Region = &fourthRegion.REGION4
 			return 4, nil
 
 		} else if enthalpy <= hB23limits[0] || entropy <= sB23limits[0] {
+			r.Region = &thirdRegion.REGION3
 			return 3, nil
 
 		} else if enthalpy >= hB23limits[1] || entropy >= sB23limits[1] {
+			r.Region = &secondRegion.REGION2
 			return 2, nil
 
 		} else if hB23limits[0] < enthalpy &&
 			enthalpy < hB23limits[1] &&
 			sB23limits[0] < entropy &&
 			entropy < sB23limits[1] {
-			if secondRegion.PressureHS(enthalpy, entropy) >
+			if secondRegion.REGION2.PressureHS(enthalpy, entropy) >
 				pressureB23(temperatureB23HS(enthalpy, entropy)) {
+				r.Region = &thirdRegion.REGION3
 				return 3, nil
 			} else {
+				r.Region = &secondRegion.REGION2
 				return 2, nil
 			}
 		}
@@ -623,40 +657,44 @@ func getRegionHS(enthalpy float64, entropy float64) (int, error) {
 	return 2, nil
 }
 
-func getRegionPH(pressure float64, enthalpy float64) (int, error) {
+func (r *IF97Region) GetRegionPH(pressure float64, enthalpy float64) (int, error) {
 
 	/*
 	   Checks
 	*/
 	if pressure < p0 {
-		return -1, nil
-		//throw new OutOfRangeException(IF97.Quantity.p, pressure, IF97.p0);
+		return -1, rangeError.ErrorFromValue(quantity.P, pressure, p0);
+
 
 	} else if pressure > p132 {
-		return -1, nil
-		//throw new OutOfRangeException(IF97.Quantity.p, pressure, p132);
+		return -1,  rangeError.ErrorFromValue(quantity.P, pressure, p132);
+
 	}
-	h25 := secondRegion.SpecificEnthalpyPT(pressure, T25)
+	h25 := secondRegion.REGION2.SpecificEnthalpyPT(pressure, T25)
 
 	/*
 	   Select Region
 	*/
 	if enthalpy > h25 {
 		if pressure > p5 {
-			return -1, nil
-			//throw new OutOfRangeException(new IF97.Quantity[]{IF97.Quantity.p, IF97.Quantity.h}, new double[]{pressure, enthalpy}, new double[]{p5, h25});
+			return -1, rangeError.RangeError{
+				QUANTITIES: []quantity.Quantity{quantity.P, quantity.H}, 
+				VALUES: []float64{pressure, enthalpy},
+				LIMITS: []float64{p5, h25},
+				UNIT_SYSTEM: units.DEFAULT,
+			}
+
 		}
-		return -1, nil
-		//throw new OutOfRangeException(IF97.Quantity.h, enthalpy, h25);
+
 	}
 	if pressure <= ps13 {
 		// region 1, 4, or 2
-		Ts := fourthRegion.SaturationTemperatureP(pressure)
+		Ts := fourthRegion.REGION4.SaturationTemperatureP(pressure)
 
-		if enthalpy < firstRegion.SpecificEnthalpyPT(pressure, Ts) {
+		if enthalpy < firstRegion.REGION1.SpecificEnthalpyPT(pressure, Ts) {
 			return 1, nil
 
-		} else if enthalpy > secondRegion.SpecificEnthalpyPT(pressure, Ts) {
+		} else if enthalpy > secondRegion.REGION2.SpecificEnthalpyPT(pressure, Ts) {
 			return 2, nil
 
 		} else {
@@ -670,10 +708,10 @@ func getRegionPH(pressure float64, enthalpy float64) (int, error) {
 			return 4, nil
 		}
 
-	} else if enthalpy <= firstRegion.SpecificEnthalpyPT(pressure, T13) {
+	} else if enthalpy <= firstRegion.REGION1.SpecificEnthalpyPT(pressure, T13) {
 		return 1, nil
 
-	} else if enthalpy >= secondRegion.SpecificEnthalpyPT(pressure, temperatureB23P(pressure)) {
+	} else if enthalpy >= secondRegion.REGION2.SpecificEnthalpyPT(pressure, temperatureB23P(pressure)) {
 		return 2, nil
 
 	} else {
@@ -696,12 +734,12 @@ func ConvertToDefault(quantity []float64, value float64) float64 {
  * @return region
  * @throws OutOfRangeException
  */
-func getRegionPTUnits(unitSystem UnitSystem, pressure float64, temperature float64) (int, error) {
+func (r *IF97Region) GetRegionPTUnits(unitSystem units.UnitSystem, pressure float64, temperature float64) (int, error) {
 
 	p := ConvertToDefault(unitSystem.PRESSURE, pressure)
 	T := ConvertToDefault(unitSystem.TEMPERATURE, temperature)
 
-	retval, err := getRegionPT(p, T)
+	retval, err := r.GetRegionPT(p, T)
 	if err != nil {
 		return -1, err
 	}
@@ -718,29 +756,34 @@ func getRegionPTUnits(unitSystem UnitSystem, pressure float64, temperature float
  * @return region
  * @throws OutOfRangeException
  */
-func getRegionPT(pressure float64, temperature float64) (int, error) {
+func (r *IF97Region) GetRegionPT(pressure float64, temperature float64) (int, error) {
 
 	/*
 	   Checks
 	*/
-	// if (pressure <= 0) {
-	//     return -1,Error(quantity.Quantity.p, pressure, 0)
+	//return -1, ErrorFromValue(quantity.P, pressure, p0)
+	if (pressure <= 0) {
+	    return -1,rangeError.ErrorFromValue(quantity.P, pressure, 0)
 
-	// } else if (pressure > p132) {
-	//     return -1,Error(Quantity.p, pressure, p132)
+	} else if (pressure > p132) {
+	    return -1,rangeError.ErrorFromValue(quantity.P, pressure, p132)
 
-	// } else if (temperature < IF97.T0) {
-	//     return -1,Error(Quantity.T, temperature, constants.T0)
+	} else if (temperature < constants.T0) {
+	    return -1,rangeError.ErrorFromValue(quantity.T, temperature, constants.T0)
 
-	// } else if (temperature > T25 && pressure > p5) {
-	//     return -1,Error(
-	//         []Quantity{
-	//         Quantity.p,
-	//         Quantity.T,
-	//     }, []float64{pressure, temperature}, []float64{p5, T25})
-	// } else if (temperature > T5) {
-	//     return -1, Error(quantity.Quantity.T,temperature,T5)
-	// }
+	} else if (temperature > T25 && pressure > p5) {
+	    return -1,rangeError.RangeError{
+	    QUANTITIES: []quantity.Quantity{
+	     quantity.P,
+	    quantity.T,
+	    }, 
+		VALUES: []float64{pressure, temperature}, 
+		LIMITS: []float64{p5, T25},
+		 UNIT_SYSTEM: units.DEFAULT,
+		}
+	} else if (temperature > T5) {
+	    return -1, rangeError.ErrorFromValue(quantity.T,temperature,T5)
+	}
 
 	/*
 	   Select Region
@@ -752,7 +795,7 @@ func getRegionPT(pressure float64, temperature float64) (int, error) {
 		if pressure > pressureB23(temperature) {
 			return 3, nil
 		}
-	} else if pressure > fourthRegion.SaturationPressureT(temperature) {
+	} else if pressure > fourthRegion.REGION4.SaturationPressureT(temperature) {
 		return 1, nil
 	}
 	return 2, nil
@@ -766,54 +809,54 @@ func getRegionPT(pressure float64, temperature float64) (int, error) {
 //   - @return region
 //   - @throws OutOfRangeException out-of-range exception
 //     */
-func getRegionPS(pressure float64, entropy float64) int {
+func (r *IF97Region) GetRegionPS(pressure float64, entropy float64) (int,error) {
 
 	/*
 	   Checks
 	*/
-	s1 := firstRegion.SpecificEntropyPT(pressure, constants.T0)
-	s2 := secondRegion.SpecificEntropyPT(pressure, T25)
+	s1 := firstRegion.REGION1.SpecificEntropyPT(pressure, constants.T0)
+	s2 := secondRegion.REGION2.SpecificEntropyPT(pressure, T25)
 	//TODO : new Error
-	// if (pressure < IF97.p0) {
-	//     throw new OutOfRangeException(IF97.Quantity.p, pressure, IF97.p0);
+	if (pressure < p0) {
+	    return -1, rangeError.ErrorFromValue(quantity.P, pressure, p0)
 
-	// } else if (pressure > p132) {
-	//     throw new OutOfRangeException(IF97.Quantity.p, pressure, p132);
+	} else if (pressure > p132) {
+	    return-1, rangeError.ErrorFromValue(quantity.P, pressure, p132);
 
-	// } else if (entropy < s1) {
-	//     throw new OutOfRangeException(IF97.Quantity.s, entropy, s1);
+	} else if (entropy < s1) {
+	    return-1, rangeError.ErrorFromValue(quantity.S, entropy, s1);
 
-	// } else if (entropy > s2) {
-	//     throw new OutOfRangeException(IF97.Quantity.s, entropy, s2);
-	// }
+	} else if (entropy > s2) {
+	    return-1, rangeError.ErrorFromValue(quantity.S, entropy, s2)
+	}
 
 	/*
 	   Select Region
 	*/
 	if pressure < ps13 {
-		Tsat := fourthRegion.SaturationTemperatureP(pressure)
+		Tsat := fourthRegion.REGION4.SaturationTemperatureP(pressure)
 
-		if entropy < firstRegion.SpecificEntropyPT(pressure, Tsat) {
-			return 1
+		if entropy < firstRegion.REGION1.SpecificEntropyPT(pressure, Tsat) {
+			return 1,nil
 
-		} else if entropy > secondRegion.SpecificEntropyPT(pressure, Tsat) {
-			return 2
+		} else if entropy > secondRegion.REGION2.SpecificEntropyPT(pressure, Tsat) {
+			return 1,nil
 
 		} else {
-			return 4
+			return 1,nil
 		}
-	} else if firstRegion.SpecificEntropyPT(ps13, T13) <= entropy &&
-		entropy <= secondRegion.SpecificEntropyPT(ps13, T13) &&
+	} else if firstRegion.REGION1.SpecificEntropyPT(ps13, T13) <= entropy &&
+		entropy <= secondRegion.REGION2.SpecificEntropyPT(ps13, T13) &&
 		pressure < saturationPressure3(entropy) {
-		return 4
+		return 1,nil
 
-	} else if entropy <= firstRegion.SpecificEntropyPT(pressure, T13) {
-		return 1
+	} else if entropy <= firstRegion.REGION1.SpecificEntropyPT(pressure, T13) {
+		return 1,nil
 
-	} else if entropy < secondRegion.SpecificEntropyPT(pressure, temperatureB23P(pressure)) {
-		return 3
+	} else if entropy < secondRegion.REGION2.SpecificEntropyPT(pressure, temperatureB23P(pressure)) {
+		return 1,nil
 
 	} else {
-		return 2
+		return 1,nil
 	}
 }

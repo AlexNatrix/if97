@@ -1,10 +1,9 @@
-package thirdRegion_test
+package thirdRegion
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"if97.com/cmd/lib/thirdRegion"
 )
 
 func TestThirdRegion(t *testing.T) {
@@ -18,28 +17,28 @@ func TestThirdRegion(t *testing.T) {
 			values: [][]float64{{0.138935717e2 / 0.319131787e1, 500, 650},
 				{0.446579342e2 / 0.404118076e1, 200, 650},
 				{0.634165359e1 / 0.271701677e1, 500, 750}},
-			f:   thirdRegion.HeatCapacityRatioRhoT,
+			f:   REGION3.HeatCapacityRatioRhoT,
 			tol: 1e-7,
 		},
 		{name: "testIsobaricCubicExpansionCoefficientRhoT",
 			values: [][]float64{{0.168653107e-1, 500, 650},
 				{0.685312229e-1, 200, 650},
 				{0.441515098e-2, 500, 750}},
-			f:   thirdRegion.IsobaricCubicExpansionCoefficientRhoT,
+			f:   REGION3.IsobaricCubicExpansionCoefficientRhoT,
 			tol: 1e-7,
 		},
 		{name: "testIsothermalCompressibilityRhoT",
 			values: [][]float64{{0.345506956e-1, 500, 650},
 				{0.375798565, 200, 650},
 				{0.806710817e-2, 500, 750}},
-			f:   thirdRegion.IsothermalCompressibilityRhoT,
+			f:   REGION3.IsothermalCompressibilityRhoT,
 			tol: 1e-9,
 		},
 		{name: "testIsothermalStressCoefficientRhoT",
 			values: [][]float64{{0.565652647e3, 500, 650},
 				{0.238728962e2, 200, 650},
 				{0.791475213e3, 500, 750}},
-			f:   thirdRegion.IsothermalStressCoefficientRhoT,
+			f:   REGION3.IsothermalStressCoefficientRhoT,
 			tol: 1e-6,
 		},
 		{name: "testPressureHS",
@@ -50,7 +49,7 @@ func TestThirdRegion(t *testing.T) {
 				{6.363924887e1, 2400, 4.7},
 				{3.434999263e1, 2600, 5.1},
 				{8.839043281e1, 2700, 5.0}},
-			f:   thirdRegion.PressureHS,
+			f:   REGION3.PressureHS,
 			tol: 1e-8,
 		},
 		{name: "testPressureRhoT",
@@ -59,7 +58,7 @@ func TestThirdRegion(t *testing.T) {
 				{0.222930643e2, 200, 650},
 				{0.783095639e2, 500, 750},
 			},
-			f:   thirdRegion.PressureRhoT,
+			f:   REGION3.PressureRhoT,
 			tol: 1e-7,
 		},
 		{name: "testSpecificEnthalpyRhoT",
@@ -68,7 +67,7 @@ func TestThirdRegion(t *testing.T) {
 				{0.237512401e4, 200, 650},
 				{0.225868845e4, 500, 750},
 			},
-			f:   thirdRegion.SpecificEnthalpyRhoT,
+			f:   REGION3.SpecificEnthalpyRhoT,
 			tol: 1e-5,
 		},
 		{name: "testSpecificEntropyRhoT",
@@ -77,7 +76,7 @@ func TestThirdRegion(t *testing.T) {
 				{0.485438792e1, 200, 650},
 				{0.446971906e1, 500, 750},
 			},
-			f:   thirdRegion.SpecificEntropyRhoT,
+			f:   REGION3.SpecificEntropyRhoT,
 			tol: 1e-8,
 		},
 		{name: "testSpecificInternalEnergyRhoT",
@@ -86,7 +85,7 @@ func TestThirdRegion(t *testing.T) {
 				{0.226365868e4, 200, 650},
 				{0.210206932e4, 500, 750},
 			},
-			f:   thirdRegion.SpecificInternalEnergyRhoT,
+			f:   REGION3.SpecificInternalEnergyRhoT,
 			tol: 1e-5,
 		},
 		{name: "testSpecificIsobaricHeatCapacityRhoT",
@@ -95,7 +94,7 @@ func TestThirdRegion(t *testing.T) {
 				{0.446579342e2, 200, 650},
 				{0.634165359e1, 500, 750},
 			},
-			f:   thirdRegion.SpecificIsobaricHeatCapacityRhoT,
+			f:   REGION3.SpecificIsobaricHeatCapacityRhoT,
 			tol: 1e-7,
 		},
 		{name: "testSpecificIsochoricHeatCapacityRhoT",
@@ -104,7 +103,7 @@ func TestThirdRegion(t *testing.T) {
 				{0.404118076e1, 200, 650},
 				{0.271701677e1, 500, 750},
 			},
-			f:   thirdRegion.SpecificIsochoricHeatCapacityRhoT,
+			f:   REGION3.SpecificIsochoricHeatCapacityRhoT,
 			tol: 1e-8,
 		},
 		{name: "testSpecificVolumePH",
@@ -116,7 +115,7 @@ func TestThirdRegion(t *testing.T) {
 				{2.801244590e-3, 50, 2400},
 				{2.404234998e-3, 100, 2700},
 			},
-			f:   thirdRegion.SpecificVolumePH,
+			f:   REGION3.SpecificVolumePH,
 			tol: 1e-12,
 		},
 		{name: "testSpecificVolumePS",
@@ -128,7 +127,7 @@ func TestThirdRegion(t *testing.T) {
 				{2.332634294e-3, 50, 4.5},
 				{2.449610757e-3, 100, 5.0},
 			},
-			f:   thirdRegion.SpecificVolumePS,
+			f:   REGION3.SpecificVolumePS,
 			tol: 1e-12,
 		},
 		{name: "testSpecificVolumePT",
@@ -186,7 +185,7 @@ func TestThirdRegion(t *testing.T) {
 				{3.798732962e-3, 22, 646.89}, // z
 				{3.701940010e-3, 22.064, 647.15},
 			},
-			f:   thirdRegion.SpecificVolumePT,
+			f:   REGION3.SpecificVolumePT,
 			tol: 1e-12,
 		},
 		{name: "testSpeedOfSoundRhoT",
@@ -195,7 +194,7 @@ func TestThirdRegion(t *testing.T) {
 				{0.383444594e3, 200, 650},
 				{0.760696041e3, 500, 750},
 			},
-			f:   thirdRegion.SpeedOfSoundRhoT,
+			f:   REGION3.SpeedOfSoundRhoT,
 			tol: 1e-6,
 		},
 		{name: "testTemperaturePH",
@@ -207,7 +206,7 @@ func TestThirdRegion(t *testing.T) {
 				{7.351848618e2, 50, 2400},
 				{8.420460876e2, 100, 2700},
 			},
-			f:   thirdRegion.TemperaturePH,
+			f:   REGION3.TemperaturePH,
 			tol: 1e-7,
 		},
 		{name: "testTemperaturePS",
@@ -219,7 +218,7 @@ func TestThirdRegion(t *testing.T) {
 				{7.163687517e2, 50, 4.5},
 				{8.474332825e2, 100, 5.0},
 			},
-			f:   thirdRegion.TemperaturePS,
+			f:   REGION3.TemperaturePS,
 			tol: 1e-7,
 		},
 	}
@@ -236,13 +235,13 @@ func TestThirdRegion(t *testing.T) {
 		for _, x := range [][]float64{{6.5889, 50, 673.15},
 			{8.0282, 80, 673.15},
 			{3.0622, 80, 773.15}} {
-			rho := 1 / thirdRegion.SpecificVolumePT(x[1], x[2])
-			assert.InDelta(t, x[0], thirdRegion.IsentropicExponentRhoT(rho, x[2]), 1e-4)
+			rho := 1 / REGION3.SpecificVolumePT(x[1], x[2])
+			assert.InDelta(t, x[0], REGION3.IsentropicExponentRhoT(rho, x[2]), 1e-4)
 		}
 	})
 	t.Run("testEnthalpy2bc", func(t *testing.T) {
 		for _, x := range [][]float64{{2.095936454e3, 25}} {
-			assert.InDelta(t, x[0], thirdRegion.Enthalpy3ab(x[1]), 1e-6)
+			assert.InDelta(t, x[0], enthalpy3ab(x[1]), 1e-6)
 		}
 	})
 }

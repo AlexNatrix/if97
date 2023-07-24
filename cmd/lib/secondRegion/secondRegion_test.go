@@ -1,10 +1,9 @@
-package secondRegion_test
+package secondRegion
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"if97.com/cmd/lib/secondRegion"
 )
 
 func TestSecondRegion(t *testing.T) {
@@ -18,7 +17,7 @@ func TestSecondRegion(t *testing.T) {
 			{0.191300162e1 / 0.144132662e1, 0.0035, 300},
 			{0.208141274e1 / 0.161978333e1, 0.0035, 700},
 			{0.103505092e2 / 0.297553837e1, 30, 700}},
-		f:   secondRegion.HeatCapacityRatioPT,
+		f:   REGION2.HeatCapacityRatioPT,
 		tol: 1e-8,
 	},
 		{
@@ -27,7 +26,7 @@ func TestSecondRegion(t *testing.T) {
 				{1.2881, 0.1, 673.15},
 				{1.2935, 20, 673.15},
 				{1.4227, 50, 873.15}},
-			f:   secondRegion.IsentropicExponentPT,
+			f:   REGION2.IsentropicExponentPT,
 			tol: 1e-4,
 		},
 		{
@@ -36,7 +35,7 @@ func TestSecondRegion(t *testing.T) {
 				{0.337578289e-2, 0.0035, 300},
 				{0.142878736e-2, 0.0035, 700},
 				{0.126019688e-1, 30, 700}},
-			f:   secondRegion.IsobaricCubicExpansionCoefficientPT,
+			f:   REGION2.IsobaricCubicExpansionCoefficientPT,
 			tol: 1e-10,
 		},
 		{
@@ -45,7 +44,7 @@ func TestSecondRegion(t *testing.T) {
 				{0.286239651e3, 0.0035, 300},
 				{0.285725461e3, 0.0035, 700},
 				{0.818411389e-1, 30, 700}},
-			f:   secondRegion.IsothermalCompressibilityPT,
+			f:   REGION2.IsothermalCompressibilityPT,
 			tol: 1e-6,
 		},
 		{
@@ -60,7 +59,7 @@ func TestSecondRegion(t *testing.T) {
 				{9.439202060e1, 2800, 5.1},
 				{8.414574124, 2800, 5.8},
 				{8.376903879e1, 3400, 5.8}},
-			f:   secondRegion.PressureHS,
+			f:   REGION2.PressureHS,
 			tol: 1e-8,
 		},
 		{
@@ -69,7 +68,7 @@ func TestSecondRegion(t *testing.T) {
 				{0.254991145e4, 0.0035, 300},
 				{0.333568375e4, 0.0035, 700},
 				{0.263149474e4, 30, 700}},
-			f:   secondRegion.SpecificEnthalpyPT,
+			f:   REGION2.SpecificEnthalpyPT,
 			tol: 1e-5,
 		},
 		{
@@ -78,7 +77,7 @@ func TestSecondRegion(t *testing.T) {
 				{0.852238967e1, 0.0035, 300},
 				{0.101749996e2, 0.0035, 700},
 				{0.517540298e1, 30, 700}},
-			f:   secondRegion.SpecificEntropyPT,
+			f:   REGION2.SpecificEntropyPT,
 			tol: 1e-7,
 		},
 		{
@@ -87,7 +86,7 @@ func TestSecondRegion(t *testing.T) {
 				{0.241169160e4, 0.0035, 300},
 				{0.301262819e4, 0.0035, 700},
 				{0.246861076e4, 30, 700}},
-			f:   secondRegion.SpecificInternalEnergyPT,
+			f:   REGION2.SpecificInternalEnergyPT,
 			tol: 1e-5,
 		},
 		{
@@ -96,7 +95,7 @@ func TestSecondRegion(t *testing.T) {
 				{0.191300162e1, 0.0035, 300},
 				{0.208141274e1, 0.0035, 700},
 				{0.103505092e2, 30, 700}},
-			f:   secondRegion.SpecificIsobaricHeatCapacityPT,
+			f:   REGION2.SpecificIsobaricHeatCapacityPT,
 			tol: 1e-8,
 		},
 		{
@@ -105,7 +104,7 @@ func TestSecondRegion(t *testing.T) {
 				{0.144132662e1, 0.0035, 300},
 				{0.161978333e1, 0.0035, 700},
 				{0.297553837e1, 30, 700}},
-			f:   secondRegion.SpecificIsochoricHeatCapacityPT,
+			f:   REGION2.SpecificIsochoricHeatCapacityPT,
 			tol: 1e-8,
 		},
 		{
@@ -114,7 +113,7 @@ func TestSecondRegion(t *testing.T) {
 				{0.394913866e2, 0.0035, 300},
 				{0.923015898e2, 0.0035, 700},
 				{0.542946619e-2, 30, 700}},
-			f:   secondRegion.SpecificVolumePT,
+			f:   REGION2.SpecificVolumePT,
 			tol: 1e-4,
 		},
 		{
@@ -123,7 +122,7 @@ func TestSecondRegion(t *testing.T) {
 				{0.427920172e3, 0.0035, 300},
 				{0.644289068e3, 0.0035, 700},
 				{0.480386523e3, 30, 700}},
-			f:   secondRegion.SpeedOfSoundPT,
+			f:   REGION2.SpeedOfSoundPT,
 			tol: 1e-6,
 		},
 		{
@@ -138,7 +137,7 @@ func TestSecondRegion(t *testing.T) {
 				{0.743056411e3, 40, 2700},
 				{0.791137067e3, 60, 2700},
 				{0.882756860e3, 60, 3200}},
-			f:   secondRegion.TemperaturePH,
+			f:   REGION2.TemperaturePH,
 			tol: 1e-5,
 		},
 		{
@@ -153,7 +152,7 @@ func TestSecondRegion(t *testing.T) {
 				{0.697992849e3, 20, 5.75},
 				{0.854011484e3, 80, 5.25},
 				{0.949017998e3, 80, 5.75}},
-			f:   secondRegion.TemperaturePS,
+			f:   REGION2.TemperaturePS,
 			tol: 1e-5,
 		},
 	}

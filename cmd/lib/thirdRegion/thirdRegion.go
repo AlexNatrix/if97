@@ -1333,6 +1333,18 @@ var (
 		00.65017534844798e3}
 )
 
+type Region struct {
+	Name string
+}
+
+var REGION3 = Region{
+	Name: Name,
+}
+
+func (r *Region)GetName() string{
+	return r.Name
+}
+
 /**
  * Saturation temperature.
  *
@@ -1342,7 +1354,7 @@ var (
  * @param saturationPressure saturation pressure [MPa]
  * @return saturation temperature [K]
  */
-func SaturationTemperaturePR4(saturationPressure float64) float64 {
+func saturationTemperaturePR4(saturationPressure float64) float64 {
 
 	beta := math.Pow(saturationPressure/1, 0.25)
 	beta2 := beta * beta
@@ -1364,7 +1376,7 @@ func SaturationTemperaturePR4(saturationPressure float64) float64 {
  * @param saturationTemperature saturation temperature [K]
  * @return saturation pressure [MPa]
  */
-func SaturationPressureTR4(saturationTemperature float64) float64 {
+func saturationPressureTR4(saturationTemperature float64) float64 {
 
 	Ts_Tref := saturationTemperature / 1
 	theta := Ts_Tref + nR4[8]/(Ts_Tref-nR4[9])
@@ -1376,7 +1388,7 @@ func SaturationPressureTR4(saturationTemperature float64) float64 {
 	return math.Pow(2*C/(-B+math.Sqrt(B*B-4*A*C)), 4) * 1
 }
 
-var sc = SpecificEntropyRhoT(constants.Rhoc, constants.Tc)
+var sc = REGION3.SpecificEntropyRhoT(constants.Rhoc, constants.Tc)
 
 func getSubRegionS(entropy float64) string {
 	if entropy > sc {
@@ -1386,13 +1398,13 @@ func getSubRegionS(entropy float64) string {
 }
 
 func getSubRegionPH(pressure float64, enthalpy float64) string {
-	if enthalpy < Enthalpy3ab(pressure) {
+	if enthalpy < enthalpy3ab(pressure) {
 		return "R3a"
 	}
 	return "R3b"
 }
 
-func Enthalpy3ab(pressure float64) float64 {
+func enthalpy3ab(pressure float64) float64 {
 
 	var out float64 = 0
 	pi := pressure
@@ -1614,15 +1626,15 @@ func thetaB(pi float64, eta float64) float64 {
 	return out
 }
 
-// @Override
-func HeatCapacityRatioPT(pressure float64, temperature float64) float64 {
 
-	rho := 1 / SpecificVolumePT(pressure, temperature)
+func (r *Region)HeatCapacityRatioPT(pressure float64, temperature float64) float64 {
 
-	return HeatCapacityRatioRhoT(rho, temperature)
+	rho := 1 / r.SpecificVolumePT(pressure, temperature)
+
+	return r.HeatCapacityRatioRhoT(rho, temperature)
 }
 
-func HeatCapacityRatioRhoT(density float64, temperature float64) float64 {
+func (r *Region)HeatCapacityRatioRhoT(density float64, temperature float64) float64 {
 
 	delta := density / constants.Rhoc
 	tau := constants.Tc / temperature
@@ -1634,15 +1646,15 @@ func HeatCapacityRatioRhoT(density float64, temperature float64) float64 {
 	return 1 - x*x/(tau*tau*phiTauTau*(2*delta*phiDelta+delta*delta*phiDeltaDelta))
 }
 
-// @Override
-func IsentropicExponentPT(pressure float64, temperature float64) float64 {
 
-	rho := 1 / SpecificVolumePT(pressure, temperature)
+func (r *Region)IsentropicExponentPT(pressure float64, temperature float64) float64 {
 
-	return IsentropicExponentRhoT(rho, temperature)
+	rho := 1 / r.SpecificVolumePT(pressure, temperature)
+
+	return r.IsentropicExponentRhoT(rho, temperature)
 }
 
-func IsentropicExponentRhoT(density float64, temperature float64) float64 {
+func (r *Region)IsentropicExponentRhoT(density float64, temperature float64) float64 {
 
 	delta := density / constants.Rhoc
 	tau := constants.Tc / temperature
@@ -1654,15 +1666,15 @@ func IsentropicExponentRhoT(density float64, temperature float64) float64 {
 	return 2 + delta/phiDelta*(phiDeltaDelta-x*x/(tau*tau*phiTauTau))
 }
 
-// @Override
-func IsobaricCubicExpansionCoefficientPT(pressure float64, temperature float64) float64 {
 
-	rho := 1 / SpecificVolumePT(pressure, temperature)
+func (r *Region)IsobaricCubicExpansionCoefficientPT(pressure float64, temperature float64) float64 {
 
-	return IsobaricCubicExpansionCoefficientRhoT(rho, temperature)
+	rho := 1 / r.SpecificVolumePT(pressure, temperature)
+
+	return r.IsobaricCubicExpansionCoefficientRhoT(rho, temperature)
 }
 
-func IsobaricCubicExpansionCoefficientRhoT(density float64, temperature float64) float64 {
+func (r *Region)IsobaricCubicExpansionCoefficientRhoT(density float64, temperature float64) float64 {
 
 	delta := density / constants.Rhoc
 	tau := constants.Tc / temperature
@@ -1671,15 +1683,15 @@ func IsobaricCubicExpansionCoefficientRhoT(density float64, temperature float64)
 	return (phiDelta - tau*phiDeltaTau(delta, tau)) / (2*phiDelta + delta*phiDeltaDelta(delta, tau)) / temperature
 }
 
-// @Override
-func IsothermalCompressibilityPT(pressure float64, temperature float64) float64 {
 
-	rho := 1 / SpecificVolumePT(pressure, temperature)
+func (r *Region)IsothermalCompressibilityPT(pressure float64, temperature float64) float64 {
 
-	return IsothermalCompressibilityRhoT(rho, temperature)
+	rho := 1 / r.SpecificVolumePT(pressure, temperature)
+
+	return r.IsothermalCompressibilityRhoT(rho, temperature)
 }
 
-func IsothermalCompressibilityRhoT(density float64, temperature float64) float64 {
+func (r *Region)IsothermalCompressibilityRhoT(density float64, temperature float64) float64 {
 
 	delta := density / constants.Rhoc
 	tau := constants.Tc / temperature
@@ -1694,7 +1706,7 @@ func IsothermalCompressibilityRhoT(density float64, temperature float64) float64
  * @param T temperature [K]
  * @return isothermal stress coefficient [kg/m³]
  */
-func IsothermalStressCoefficientRhoT(rho float64, T float64) float64 {
+func (r *Region)IsothermalStressCoefficientRhoT(rho float64, T float64) float64 {
 
 	delta := rho / constants.Rhoc
 	tau := constants.Tc / T
@@ -1702,8 +1714,8 @@ func IsothermalStressCoefficientRhoT(rho float64, T float64) float64 {
 	return rho * (2 + delta*phiDeltaDelta(delta, tau)/phiDelta(delta, tau))
 }
 
-// @Override
-func PressureHS(h float64, s float64) float64 {
+
+func (r *Region)PressureHS(h float64, s float64) float64 {
 
 	switch getSubRegionS(s) {
 	case "R3a":
@@ -1717,7 +1729,7 @@ func PressureHS(h float64, s float64) float64 {
 	}
 }
 
-func PressureRhoT(rho float64, T float64) float64 {
+func (r *Region)PressureRhoT(rho float64, T float64) float64 {
 
 	delta := rho / constants.Rhoc
 
@@ -1731,7 +1743,7 @@ func PressureRhoT(rho float64, T float64) float64 {
  * @param T temperature [K]
  * @return relative pressure coefficient [1/K]
  */
-func RelativePressureCoefficientRhoT(rho float64, T float64) float64 {
+func (r *Region)RelativePressureCoefficientRhoT(rho float64, T float64) float64 {
 
 	delta := rho / constants.Rhoc
 	tau := constants.Tc / T
@@ -1739,15 +1751,15 @@ func RelativePressureCoefficientRhoT(rho float64, T float64) float64 {
 	return (1 - tau*phiDeltaTau(delta, tau)/phiDelta(delta, tau)) / T
 }
 
-// @Override
-func SpecificEnthalpyPT(pressure float64, temperature float64) float64 {
 
-	rho := 1 / SpecificVolumePT(pressure, temperature)
+func (r *Region)SpecificEnthalpyPT(pressure float64, temperature float64) float64 {
 
-	return SpecificEnthalpyRhoT(rho, temperature)
+	rho := 1 / r.SpecificVolumePT(pressure, temperature)
+
+	return r.SpecificEnthalpyRhoT(rho, temperature)
 }
 
-func SpecificEnthalpyRhoT(density float64, temperature float64) float64 {
+func (r *Region)SpecificEnthalpyRhoT(density float64, temperature float64) float64 {
 
 	delta := density / constants.Rhoc
 	tau := constants.Tc / temperature
@@ -1755,16 +1767,16 @@ func SpecificEnthalpyRhoT(density float64, temperature float64) float64 {
 	return (tau*phiTau(delta, tau) + delta*phiDelta(delta, tau)) * constants.R * temperature
 }
 
-// @Override
-func specificEntropyPT(pressure float64, temperature float64) float64 {
 
-	rho := 1 / SpecificVolumePT(pressure, temperature)
+func (r *Region)SpecificEntropyPT(pressure float64, temperature float64) float64 {
 
-	return SpecificEntropyRhoT(rho, temperature)
+	rho := 1 / r.SpecificVolumePT(pressure, temperature)
+
+	return r.SpecificEntropyRhoT(rho, temperature)
 }
 
-// @Override
-func SpecificEntropyRhoT(density float64, temperature float64) float64 {
+
+func (r *Region)SpecificEntropyRhoT(density float64, temperature float64) float64 {
 
 	delta := density / constants.Rhoc
 	tau := constants.Tc / temperature
@@ -1772,40 +1784,40 @@ func SpecificEntropyRhoT(density float64, temperature float64) float64 {
 	return (tau*phiTau(delta, tau) - phi(delta, tau)) * constants.R
 }
 
-// @Override
-func SpecificGibbsFreeEnergyPT(pressure float64, temperature float64) float64 {
 
-	rho := 1 / SpecificVolumePT(pressure, temperature)
+func (r *Region)SpecificGibbsFreeEnergyPT(pressure float64, temperature float64) float64 {
+
+	rho := 1 / r.SpecificVolumePT(pressure, temperature)
 	delta := rho / constants.Rhoc
 	tau := constants.Tc / temperature
 
 	return phi(delta, tau)*constants.R*temperature + pressure/rho
 }
 
-// @Override
-func SpecificInternalEnergyPT(pressure float64, temperature float64) float64 {
 
-	rho := 1 / SpecificVolumePT(pressure, temperature)
+func (r *Region)SpecificInternalEnergyPT(pressure float64, temperature float64) float64 {
 
-	return SpecificInternalEnergyRhoT(rho, temperature)
+	rho := 1 / r.SpecificVolumePT(pressure, temperature)
+
+	return r.SpecificInternalEnergyRhoT(rho, temperature)
 }
 
-func SpecificInternalEnergyRhoT(density float64, temperature float64) float64 {
+func (r *Region)SpecificInternalEnergyRhoT(density float64, temperature float64) float64 {
 
 	tau := constants.Tc / temperature
 
 	return tau * phiTau(density/constants.Rhoc, tau) * constants.R * temperature
 }
 
-// @Override
-func SpecificIsobaricHeatCapacityPT(pressure float64, temperature float64) float64 {
 
-	rho := 1 / SpecificVolumePT(pressure, temperature)
+func (r *Region)SpecificIsobaricHeatCapacityPT(pressure float64, temperature float64) float64 {
 
-	return SpecificIsobaricHeatCapacityRhoT(rho, temperature)
+	rho := 1 / r.SpecificVolumePT(pressure, temperature)
+
+	return r.SpecificIsobaricHeatCapacityRhoT(rho, temperature)
 }
 
-func SpecificIsobaricHeatCapacityRhoT(density float64, temperature float64) float64 {
+func (r *Region)SpecificIsobaricHeatCapacityRhoT(density float64, temperature float64) float64 {
 
 	delta := density / constants.Rhoc
 	tau := constants.Tc / temperature
@@ -1816,28 +1828,28 @@ func SpecificIsobaricHeatCapacityRhoT(density float64, temperature float64) floa
 		(2*delta*phiDelta+delta*delta*phiDeltaDelta(delta, tau))) * constants.R
 }
 
-// @Override
-func SpecificIsochoricHeatCapacityPT(pressure float64, temperature float64) float64 {
 
-	rho := 1 / SpecificVolumePT(pressure, temperature)
+func (r *Region)SpecificIsochoricHeatCapacityPT(pressure float64, temperature float64) float64 {
 
-	return SpecificIsochoricHeatCapacityRhoT(rho, temperature)
+	rho := 1 / r.SpecificVolumePT(pressure, temperature)
+
+	return r.SpecificIsochoricHeatCapacityRhoT(rho, temperature)
 }
 
-func SpecificIsochoricHeatCapacityRhoT(density float64, temperature float64) float64 {
+func (r *Region)SpecificIsochoricHeatCapacityRhoT(density float64, temperature float64) float64 {
 
 	tau := constants.Tc / temperature
 
 	return -tau * tau * phiTauTau(density/constants.Rhoc, tau) * constants.R
 }
 
-// @Override
-func SpecificVolumeHS(enthalpy float64, entropy float64) float64 {
-	return SpecificVolumePH(PressureHS(enthalpy, entropy), enthalpy)
+
+func (r *Region)SpecificVolumeHS(enthalpy float64, entropy float64) float64 {
+	return r.SpecificVolumePH(r.PressureHS(enthalpy, entropy), enthalpy)
 }
 
-// @Override
-func SpecificVolumePH(pressure float64, enthalpy float64) float64 {
+
+func (r *Region)SpecificVolumePH(pressure float64, enthalpy float64) float64 {
 
 	pi := pressure / 100
 
@@ -1853,8 +1865,8 @@ func SpecificVolumePH(pressure float64, enthalpy float64) float64 {
 	}
 }
 
-// @Override
-func SpecificVolumePS(pressure float64, entropy float64) float64 {
+
+func (r *Region)SpecificVolumePS(pressure float64, entropy float64) float64 {
 
 	var omega float64 = 0
 	var x []float64
@@ -1879,10 +1891,10 @@ func SpecificVolumePS(pressure float64, entropy float64) float64 {
 }
 
 var T13 float64 = constants.T0 + 350          // temperature boundary between region 1 and 3 (623.15 K) [K]
-var ps13 float64 = SaturationPressureTR4(T13) // (16.529 MPa) [MPa]
+var ps13 float64 = saturationPressureTR4(T13) // (16.529 MPa) [MPa]
 
-// @Override
-func SpecificVolumePT(p float64, T float64) float64 {
+
+func (r *Region)SpecificVolumePT(p float64, T float64) float64 {
 
 	dTheta_dPi := 3.727888004
 	var omega float64 = 0
@@ -1890,8 +1902,8 @@ func SpecificVolumePT(p float64, T float64) float64 {
 	p3cd := 19.00881189
 	var theta float64
 	logPi := math.Log(pi)
-	ps643 := SaturationPressureTR4(643.15)
-	Ts := SaturationTemperaturePR4(p)
+	ps643 := saturationPressureTR4(643.15)
+	Ts := saturationTemperaturePR4(p)
 	var In [][]float64
 
 	/*
@@ -2212,15 +2224,15 @@ func SpecificVolumePT(p float64, T float64) float64 {
 	}
 }
 
-// @Override
-func SpeedOfSoundPT(pressure float64, temperature float64) float64 {
 
-	rho := 1 / SpecificVolumePT(pressure, temperature)
+func (r *Region)SpeedOfSoundPT(pressure float64, temperature float64) float64 {
 
-	return SpeedOfSoundRhoT(rho, temperature)
+	rho := 1 / r.SpecificVolumePT(pressure, temperature)
+
+	return r.SpeedOfSoundRhoT(rho, temperature)
 }
 
-func SpeedOfSoundRhoT(density float64, temperature float64) float64 {
+func (r *Region)SpeedOfSoundRhoT(density float64, temperature float64) float64 {
 
 	delta := density / constants.Rhoc
 	tau := constants.Tc / temperature
@@ -2231,13 +2243,13 @@ func SpeedOfSoundRhoT(density float64, temperature float64) float64 {
 		(tau*tau*phiTauTau(delta, tau))) * 1e3 * constants.R * temperature)
 }
 
-// @Override
-func TemperatureHS(enthalpy float64, entropy float64) float64 {
-	return TemperaturePH(PressureHS(enthalpy, entropy), enthalpy)
+
+func (r *Region)TemperatureHS(enthalpy float64, entropy float64) float64 {
+	return r.TemperaturePH(r.PressureHS(enthalpy, entropy), enthalpy)
 }
 
-// @Override
-func TemperaturePH(pressure float64, enthalpy float64) float64 {
+
+func (r *Region)TemperaturePH(pressure float64, enthalpy float64) float64 {
 
 	switch getSubRegionPH(pressure, enthalpy) {
 	case "R3a":
@@ -2249,8 +2261,8 @@ func TemperaturePH(pressure float64, enthalpy float64) float64 {
 	}
 }
 
-// @Override
-func TemperaturePS(pressure float64, entropy float64) float64 {
+
+func (r *Region)TemperaturePS(pressure float64, entropy float64) float64 {
 
 	var theta float64 = 0
 	var x []float64
@@ -2267,6 +2279,7 @@ func TemperaturePS(pressure float64, entropy float64) float64 {
 		break
 
 	default:
+		//TODO:FIX this
 		panic("Unsupported subregion: TemperaturePh Region 3")
 	}
 	for _, ijn := range IJn {

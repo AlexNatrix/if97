@@ -1,10 +1,9 @@
-package fourthRegion_test
+package fourthRegion
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"if97.com/cmd/lib/fourthRegion"
 	"if97.com/cmd/lib/utils/constants"
 )
 
@@ -16,8 +15,8 @@ func TestFourthRegion(t *testing.T) {
 			{0.00229020, 644.15},
 			{0.00238170, 645.15},
 			{0.00252643, 646.15}} {
-			ps := fourthRegion.SaturationPressureT(x[1])
-			assert.InDelta(t, x[0], fourthRegion.SpecificVolumeSaturatedLiquidP(ps), 1e-8)
+			ps := REGION4.SaturationPressureT(x[1])
+			assert.InDelta(t, x[0], REGION4.SpecificVolumeSaturatedLiquidP(ps), 1e-8)
 		}
 	})
 
@@ -29,8 +28,8 @@ func TestFourthRegion(t *testing.T) {
 			{2118.4653, 625, 0.5},
 			{2542.0121, 625, 0.99},
 			{2550.6559, 625, 1}} {
-			ps := fourthRegion.SaturationPressureT(x[1])
-			assert.InDelta(t, x[0], fourthRegion.SpecificEnthalpyPX(ps, x[2]), 1e-2)
+			ps := REGION4.SaturationPressureT(x[1])
+			assert.InDelta(t, x[0], REGION4.SpecificEnthalpyPX(ps, x[2]), 1e-2)
 		}
 	})
 
@@ -42,7 +41,7 @@ func TestFourthRegion(t *testing.T) {
 	}{
 		{
 			name: "testSaturationPressureB34H",
-			f:    fourthRegion.SaturationPressureB34H,
+			f:    SaturationPressureB34H,
 			values: [][]float64{
 				{1.724175718e1, 1700},
 				{2.193442957e1, 2000},
@@ -52,7 +51,7 @@ func TestFourthRegion(t *testing.T) {
 		},
 		{
 			name: "testSaturationPressureB34S",
-			f:    fourthRegion.SaturationPressureB34S,
+			f:    saturationPressureB34S,
 			values: [][]float64{
 				{1.687755057e1, 3.8},
 				{2.164451789e1, 4.2},
@@ -62,7 +61,7 @@ func TestFourthRegion(t *testing.T) {
 		},
 		{
 			name: "testSaturationPressureT",
-			f:    fourthRegion.SaturationPressureT,
+			f:    REGION4.SaturationPressureT,
 			values: [][]float64{
 				{0.353658941e-2, 300},
 				{0.263889776e1, 500},
@@ -72,7 +71,7 @@ func TestFourthRegion(t *testing.T) {
 		},
 		{
 			name: "testSaturationTemperatureP",
-			f:    fourthRegion.SaturationTemperatureP,
+			f:    REGION4.SaturationTemperatureP,
 			values: [][]float64{
 				{0.372755919e3, 0.1},
 				{0.453035632e3, 1},
@@ -82,7 +81,7 @@ func TestFourthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificEnthalpySaturatedLiquidP",
-			f:    fourthRegion.SpecificEnthalpySaturatedLiquidP,
+			f:    REGION4.SpecificEnthalpySaturatedLiquidP,
 			values: [][]float64{
 				{1407.87, 10},
 				{1610.15, 15},
@@ -99,7 +98,7 @@ func TestFourthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificEnthalpySaturatedVapourP",
-			f:    fourthRegion.SpecificEnthalpySaturatedVapourP,
+			f:    REGION4.SpecificEnthalpySaturatedVapourP,
 			values: [][]float64{
 				{2725.47, 10},
 				{2610.86, 15},
@@ -116,7 +115,7 @@ func TestFourthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificEntropySaturatedLiquidP",
-			f:    fourthRegion.SpecificEntropySaturatedLiquidP,
+			f:    REGION4.SpecificEntropySaturatedLiquidP,
 			values: [][]float64{
 				{3.36029, 10},
 				{3.68445, 15},
@@ -133,7 +132,7 @@ func TestFourthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificEntropySaturatedVapourP",
-			f:    fourthRegion.SpecificEntropySaturatedVapourP,
+			f:    REGION4.SpecificEntropySaturatedVapourP,
 			values: [][]float64{
 				{5.61589, 10},
 				{5.31080, 15},
@@ -150,7 +149,7 @@ func TestFourthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificVolumeSaturatedLiquidP",
-			f:    fourthRegion.SpecificVolumeSaturatedLiquidP,
+			f:    REGION4.SpecificVolumeSaturatedLiquidP,
 			values: [][]float64{
 				{0.00145262, 10},
 				{0.00165696, 15},
@@ -170,7 +169,7 @@ func TestFourthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificVolumeSaturatedVapourP",
-			f:    fourthRegion.SpecificVolumeSaturatedVapourP,
+			f:    REGION4.SpecificVolumeSaturatedVapourP,
 			values: [][]float64{
 				{0.0103401, 15},
 				{0.00981114, 15.5},
@@ -235,7 +234,7 @@ func TestFourthRegion(t *testing.T) {
 			{2119.2443, 20, 0.5},
 			{2405.5451, 20, 0.99},
 			{2411.3880, 20, 1}},
-		f:   fourthRegion.SpecificEnthalpyPX,
+		f:   REGION4.SpecificEnthalpyPX,
 		tol: 1e-3,
 	},
 		{name: "testSpecificVolumePX",
@@ -247,7 +246,7 @@ func TestFourthRegion(t *testing.T) {
 				{0.00582009, 20, 0.99},
 				{0.00585828, 20, 1},
 				{0.0180336, 10, 1}},
-			f:   fourthRegion.SpecificVolumePX,
+			f:   REGION4.SpecificVolumePX,
 			tol: 1e-7,
 		},
 		{name: "testVapourFractionPH",
@@ -257,7 +256,7 @@ func TestFourthRegion(t *testing.T) {
 				{0.966917, 16, 2550},
 				{0.980510, 20, 2400},
 				{0.999641, 10, 2725}},
-			f:   fourthRegion.VapourFractionPH,
+			f:   REGION4.VapourFractionPH,
 			tol: 1e-6,
 		},
 		{name: "testVapourFractionPS",
@@ -271,7 +270,7 @@ func TestFourthRegion(t *testing.T) {
 				{1, 20, 4.92991},
 				{1, 21, 4.80624},
 				{1, 22, 4.5308}},
-			f:   fourthRegion.VapourFractionPS,
+			f:   REGION4.VapourFractionPS,
 			tol: 1e-4,
 		},
 		{name: "testTemperatureHS",
@@ -280,7 +279,7 @@ func TestFourthRegion(t *testing.T) {
 				{3.468475498e2, 1800, 5.3},
 				{4.251373305e2, 2400, 6},
 				{5.225579013e2, 2500, 5.5}},
-			f:   fourthRegion.TemperatureHS,
+			f:   REGION4.TemperatureHS,
 			tol: 1e-7,
 		},
 	}

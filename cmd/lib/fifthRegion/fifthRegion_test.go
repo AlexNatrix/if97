@@ -1,10 +1,9 @@
-package fifthRegion_test
+package fifthRegion
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"if97.com/cmd/lib/fifthRegion"
 )
 
 func TestFifthRegion(t *testing.T) {
@@ -16,9 +15,9 @@ func TestFifthRegion(t *testing.T) {
 			{0.106736948e4, 30, 2000}} {
 			w2 := x[0] * x[0] // speed of sound [m/s] squared [m2/s2]
 			p := x[1] * 1e6   // [Pa]
-			rho := 1 / fifthRegion.SpecificVolumePT(x[1], x[2])
+			rho := 1 / REGION5.SpecificVolumePT(x[1], x[2])
 			kappa := w2 * rho / p // [-]
-			assert.InDelta(t, kappa, fifthRegion.IsentropicExponentPT(x[1], x[2]), 1e-8)
+			assert.InDelta(t, kappa, REGION5.IsentropicExponentPT(x[1], x[2]), 1e-8)
 		}
 	})
 
@@ -30,7 +29,7 @@ func TestFifthRegion(t *testing.T) {
 	}{
 		{
 			name: "testHeatCapacityRatioPT",
-			f:    fifthRegion.HeatCapacityRatioPT,
+			f:    REGION5.HeatCapacityRatioPT,
 			values: [][]float64{
 				{0.261609445e1 / 0.215337784e1, 0.5, 1500},
 				{0.272724317e1 / 0.219274829e1, 30, 1500},
@@ -40,7 +39,7 @@ func TestFifthRegion(t *testing.T) {
 
 		{
 			name: "testIsobaricCubicExpansionCoefficientPT",
-			f:    fifthRegion.IsobaricCubicExpansionCoefficientPT,
+			f:    REGION5.IsobaricCubicExpansionCoefficientPT,
 			values: [][]float64{
 				{0.667539000e-3, 0.5, 1500},
 				{0.716950754e-3, 30, 1500},
@@ -49,7 +48,7 @@ func TestFifthRegion(t *testing.T) {
 		},
 		{
 			name: "testIsothermalCompressibilityPT",
-			f:    fifthRegion.IsothermalCompressibilityPT,
+			f:    REGION5.IsothermalCompressibilityPT,
 			values: [][]float64{
 				{0.200003859e1, 0.5, 1500},
 				{0.332881253e-1, 30, 1500},
@@ -58,7 +57,7 @@ func TestFifthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificEnthalpyPT",
-			f:    fifthRegion.SpecificEnthalpyPT,
+			f:    REGION5.SpecificEnthalpyPT,
 			values: [][]float64{
 				{0.521976855e4, 0.5, 1500},
 				{0.516723514e4, 30, 1500},
@@ -67,7 +66,7 @@ func TestFifthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificEntropyPT",
-			f:    fifthRegion.SpecificEntropyPT,
+			f:    REGION5.SpecificEntropyPT,
 			values: [][]float64{
 				{0.965408875e1, 0.5, 1500},
 				{0.772970133e1, 30, 1500},
@@ -76,7 +75,7 @@ func TestFifthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificInternalEnergyPT",
-			f:    fifthRegion.SpecificInternalEnergyPT,
+			f:    REGION5.SpecificInternalEnergyPT,
 			values: [][]float64{
 				{0.452749310e4, 0.5, 1500},
 				{0.447495124e4, 30, 1500},
@@ -85,7 +84,7 @@ func TestFifthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificIsobaricHeatCapacityPT",
-			f:    fifthRegion.SpecificIsobaricHeatCapacityPT,
+			f:    REGION5.SpecificIsobaricHeatCapacityPT,
 			values: [][]float64{
 				{0.261609445e1, 0.5, 1500},
 				{0.272724317e1, 30, 1500},
@@ -94,7 +93,7 @@ func TestFifthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificIsochoricHeatCapacityPT",
-			f:    fifthRegion.SpecificIsochoricHeatCapacityPT,
+			f:    REGION5.SpecificIsochoricHeatCapacityPT,
 			values: [][]float64{
 				{0.215337784e1, 0.5, 1500},
 				{0.219274829e1, 30, 1500},
@@ -103,7 +102,7 @@ func TestFifthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificVolumePT",
-			f:    fifthRegion.SpecificVolumePT,
+			f:    REGION5.SpecificVolumePT,
 			values: [][]float64{
 				{0.138455090e1, 0.5, 1500},
 				{0.230761299e-1, 30, 1500},
@@ -112,7 +111,7 @@ func TestFifthRegion(t *testing.T) {
 		},
 		{
 			name: "testSpeedOfSoundPT",
-			f:    fifthRegion.SpeedOfSoundPT,
+			f:    REGION5.SpeedOfSoundPT,
 			values: [][]float64{
 				{0.917068690e3, 0.5, 1500},
 				{0.928548002e3, 30, 1500},

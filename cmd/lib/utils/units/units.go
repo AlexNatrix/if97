@@ -1,6 +1,7 @@
 package units
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -9,7 +10,7 @@ import (
 	"if97.com/cmd/lib/utils/quantity"
 )
 
-func setUnits(unitsList [22]string, units map[quantity.Quantity]string) map[quantity.Quantity]string {
+func SetUnits(unitsList [22]string, units map[quantity.Quantity]string) map[quantity.Quantity]string {
 	quantityList := [22]quantity.Quantity{
 		quantity.P,
 		quantity.T,
@@ -197,10 +198,17 @@ var IMPERIAL UnitSystem = UnitSystem{
 	[]float64{constants.FtCube / constants.Lb, 0},                                    // specific volume
 	[]float64{constants.Ft, 0},                                                       // speed of sound
 	[]float64{constants.Lbf / constants.Ft, 0},                                       // surface tension
-	[]float64{5 / 9, 459.67 * 5 / 9},                                                 // temperature
+	[]float64{5,0 / 9, 459.67 * 5 / 9},                                                 // temperature
 	[]float64{1e3 * constants.BTU / (constants.Hr * constants.Ft * constants.Ra), 0}, // thermal conductivity
 	[]float64{1e-6, 0},                                                               // thermal diffusivity
 	[]float64{constants.In * 1e6, 0},                                                 // wavelength
+}
+
+var UNITSYSTEMS map[int]UnitSystem = map[int]UnitSystem{
+	1:DEFAULT,
+	2:ENGINEERING,
+	3:SI,
+	4:IMPERIAL,
 }
 
 var imperialUnits = [22]string{
@@ -253,45 +261,46 @@ var UNITS map[quantity.Quantity]string
 
 var tol = 1e-9
 
-func (us *UnitSystem) apply() {
+func (us *UnitSystem) Apply() error{
 	if math.Abs(us.PRESSURE[0]-1) < tol {
 		/*
 		 Default
 		*/
-		setUnits(defaultUnits, UNITS)
-
+		SetUnits(defaultUnits, UNITS)
+		return nil
 	} else if math.Abs(us.PRESSURE[0]-0.1) < tol {
 		/*
 		 Engineering
 		*/
-		setUnits(engineeringUnits, UNITS)
-
+		SetUnits(engineeringUnits, UNITS)
+		return nil
 	} else if math.Abs(us.PRESSURE[0]-1e-6) < tol {
 		/*
 		 SI
 		*/
-		setUnits(siUnits, UNITS)
+		SetUnits(siUnits, UNITS)
+		return nil
 	} else if math.Abs(us.PRESSURE[0]-constants.Psi) < tol {
 		/*
 		 Imperial
 		*/
-		setUnits(imperialUnits, UNITS)
+		SetUnits(imperialUnits, UNITS)
+		return nil
 	} else {
-		fmt.Errorf("Unsupported unit system")
+		return errors.New("unsupported unit system")
 		
 	}
 }
 
-func getLabel(quantity quantity.Quantity) string {
+func GetLabel(quantity quantity.Quantity) (string,error) {
 
 	if _, ok := UNITS[quantity]; !ok {
-		fmt.Errorf("Unknown label for quantity: " + quantity.String())
-		return fmt.Sprintf("Unknown label for quantity %s", quantity.String())
+		return "",fmt.Errorf("unknown label for quantity %s", quantity.String())
 	}
-	return fmt.Sprintf("%s [%s]", quantity.String(), getUnit(quantity))
+	return fmt.Sprintf("%s [%s]", quantity.String(), GetUnit(quantity)),nil
 }
 
-func getUnit(quantity quantity.Quantity) string {
+func GetUnit(quantity quantity.Quantity) string {
 	if _, ok := UNITS[quantity]; ok {
 		return UNITS[quantity]
 	}

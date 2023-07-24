@@ -1,10 +1,9 @@
-package firstRegion_test
+package firstRegion
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"if97.com/cmd/lib/firstRegion"
 )
 
 func TestFirstRegion(t *testing.T) {
@@ -15,7 +14,7 @@ func TestFirstRegion(t *testing.T) {
 		tol    float64
 	}{{
 		name: "testHeatCapacityRatioPT",
-		f:    firstRegion.HeatCapacityRatioPT,
+		f:    REGION1.HeatCapacityRatioPT,
 		values: [][]float64{
 			{0.417301218e1 / 0.412120160e1, 3, 300},
 			{0.401008987e1 / 0.391736606e1, 80, 300},
@@ -23,7 +22,7 @@ func TestFirstRegion(t *testing.T) {
 		tol: 1e-8,
 	}, {
 		name: "testIsentropicExponentPT",
-		f:    firstRegion.IsentropicExponentPT,
+		f:    REGION1.IsentropicExponentPT,
 		values: [][]float64{
 			{756.132, 3, 300},
 			{34.212, 80, 298.15}, // 800 bar, 25 C, Table 3, p.282
@@ -34,7 +33,7 @@ func TestFirstRegion(t *testing.T) {
 	},
 
 		{name: "testIsobaricCubicExpansionCoefficientPT",
-			f: firstRegion.IsobaricCubicExpansionCoefficientPT,
+			f: REGION1.IsobaricCubicExpansionCoefficientPT,
 			values: [][]float64{
 				{0.277354533e-3, 3, 300},
 				{0.344095843e-3, 80, 300},
@@ -43,7 +42,7 @@ func TestFirstRegion(t *testing.T) {
 		},
 		{
 			name: "testIsothermalCompressibilityPT",
-			f:    firstRegion.IsothermalCompressibilityPT,
+			f:    REGION1.IsothermalCompressibilityPT,
 			values: [][]float64{
 				{0.446382123e-3, 3, 300},
 				{0.372039437e-3, 80, 300},
@@ -52,7 +51,7 @@ func TestFirstRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificEnthalpyPT",
-			f:    firstRegion.SpecificEnthalpyPT,
+			f:    REGION1.SpecificEnthalpyPT,
 			values: [][]float64{
 				{0.115331273e3, 3, 300},
 				{0.184142828e3, 80, 300},
@@ -61,7 +60,7 @@ func TestFirstRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificEntropyPT",
-			f:    firstRegion.SpecificEntropyPT,
+			f:    REGION1.SpecificEntropyPT,
 			values: [][]float64{
 				{0.392294792, 3, 300},
 				{0.368563852, 80, 300},
@@ -70,7 +69,7 @@ func TestFirstRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificInternalEnergyPT",
-			f:    firstRegion.SpecificInternalEnergyPT,
+			f:    REGION1.SpecificInternalEnergyPT,
 			values: [][]float64{
 				{0.112324818e3, 3, 300},
 				{0.106448356e3, 80, 300},
@@ -79,7 +78,7 @@ func TestFirstRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificIsobaricHeatCapacityPT",
-			f:    firstRegion.SpecificIsobaricHeatCapacityPT,
+			f:    REGION1.SpecificIsobaricHeatCapacityPT,
 			values: [][]float64{
 				{0.417301218e1, 3, 300},
 				{0.401008987e1, 80, 300},
@@ -88,7 +87,7 @@ func TestFirstRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificIsochoricHeatCapacityPT",
-			f:    firstRegion.SpecificIsochoricHeatCapacityPT,
+			f:    REGION1.SpecificIsochoricHeatCapacityPT,
 			values: [][]float64{
 				{0.412120160e1, 3, 300},
 				{0.391736606e1, 80, 300},
@@ -97,7 +96,7 @@ func TestFirstRegion(t *testing.T) {
 		},
 		{
 			name: "testSpecificVolumePT",
-			f:    firstRegion.SpecificVolumePT,
+			f:    REGION1.SpecificVolumePT,
 			values: [][]float64{
 				{0.100215168e-2, 3, 300},
 				{0.971180894e-3, 80, 300},
@@ -111,7 +110,7 @@ func TestFirstRegion(t *testing.T) {
 				{9.800980612e-4, 0.001, 0}, // ok with tol = 1e-13
 				{9.192954727e1, 90, 0},
 				{5.868294423e1, 1500, 3.4}},
-			f:   firstRegion.PressureHS,
+			f:   REGION1.PressureHS,
 			tol: 1e-8,
 		}, {
 			name: "testSpeedOfSoundPT",
@@ -119,7 +118,7 @@ func TestFirstRegion(t *testing.T) {
 				{0.150773921e4, 3, 300},
 				{0.163469054e4, 80, 300},
 				{0.124071337e4, 3, 500}},
-			f:   firstRegion.SpeedOfSoundPT,
+			f:   REGION1.SpeedOfSoundPT,
 			tol: 1e-5,
 		},
 		{
@@ -128,7 +127,7 @@ func TestFirstRegion(t *testing.T) {
 				{0.391798509e3, 3, 500},
 				{0.378108626e3, 80, 500},
 				{0.611041229e3, 80, 1500}},
-			f:   firstRegion.TemperaturePH,
+			f:   REGION1.TemperaturePH,
 			tol: 1e-6,
 		},
 		{
@@ -137,7 +136,7 @@ func TestFirstRegion(t *testing.T) {
 				{0.307842258e3, 3, 0.5},
 				{0.309979785e3, 80, 0.5},
 				{0.565899909e3, 80, 3}},
-			f:   firstRegion.TemperaturePS,
+			f:   REGION1.TemperaturePS,
 			tol: 1e-6,
 		},
 	}

@@ -116,7 +116,16 @@ var (
 		{4, 32, -0.30732199903668e-30}}
 )
 
-type FirstRegion struct {
+type Region struct {
+	Name string
+}
+
+var REGION1 = Region{
+	Name: Name,
+}
+
+func (r *Region)GetName() string{
+	return r.Name
 }
 
 /**
@@ -227,8 +236,8 @@ func gammaTauTau(pi float64, tau float64) float64 {
 	return out
 }
 
-// @Override
-func HeatCapacityRatioPT(pressure float64, temperature float64) float64 {
+
+func (r *Region)HeatCapacityRatioPT(pressure float64, temperature float64) float64 {
 
 	var pi float64 = pressure / pRef
 	var tau float64 = Tref / temperature
@@ -237,8 +246,7 @@ func HeatCapacityRatioPT(pressure float64, temperature float64) float64 {
 	return 1 / (1 - x*x/(tau*tau*gammaPiPi(pi, tau)*gammaTauTau(pi, tau)))
 }
 
-// @Override
-func IsentropicExponentPT(pressure float64, temperature float64) float64 {
+func (r *Region)IsentropicExponentPT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 	tau := Tref / temperature
@@ -250,8 +258,7 @@ func IsentropicExponentPT(pressure float64, temperature float64) float64 {
 	return -gPi * x / (pi * (gPiPi*x - y*y))
 }
 
-// @Override
-func IsobaricCubicExpansionCoefficientPT(pressure float64, temperature float64) float64 {
+func (r *Region)IsobaricCubicExpansionCoefficientPT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 	tau := Tref / temperature
@@ -259,8 +266,8 @@ func IsobaricCubicExpansionCoefficientPT(pressure float64, temperature float64) 
 	return (1 - tau*gammaPiTau(pi, tau)/gammaPi(pi, tau)) / temperature
 }
 
-// @Override
-func IsothermalCompressibilityPT(pressure float64, temperature float64) float64 {
+
+func (r *Region)IsothermalCompressibilityPT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 	tau := Tref / temperature
@@ -268,8 +275,7 @@ func IsothermalCompressibilityPT(pressure float64, temperature float64) float64 
 	return -pi * gammaPiPi(pi, tau) / gammaPi(pi, tau) / pressure
 }
 
-// @Override
-func PressureHS(enthalpy float64, entropy float64) float64 {
+func (r *Region)PressureHS(enthalpy float64, entropy float64) float64 {
 
 	var pi float64 = 0
 	x := []float64{enthalpy/3400 + 0.05, entropy/7.6 + 0.05}
@@ -280,16 +286,16 @@ func PressureHS(enthalpy float64, entropy float64) float64 {
 	return pi * 100
 }
 
-// @Override
-func SpecificEnthalpyPT(pressure float64, temperature float64) float64 {
+
+func (r *Region)SpecificEnthalpyPT(pressure float64, temperature float64) float64 {
 
 	tau := Tref / temperature
 
 	return tau * gammaTau(pressure/pRef, tau) * constants.R * temperature
 }
 
-// @Override
-func SpecificEntropyPT(pressure float64, temperature float64) float64 {
+
+func (r *Region)SpecificEntropyPT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 	tau := Tref / temperature
@@ -297,13 +303,13 @@ func SpecificEntropyPT(pressure float64, temperature float64) float64 {
 	return (tau*gammaTau(pi, tau) - gamma(pi, tau)) * constants.R
 }
 
-// @Override
-func SpecificEntropyRhoT(rho float64, T float64) {
+
+func (r *Region)SpecificEntropyRhoT(rho float64, T float64) float64 {
 	panic("Region1.specificEntropyRhoT() pending implementation. Im sorry")
 }
 
-// @Override
-func SpecificGibbsFreeEnergyPT(pressure float64, temperature float64) float64 {
+
+func (r *Region)SpecificGibbsFreeEnergyPT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 	tau := Tref / temperature
@@ -311,8 +317,8 @@ func SpecificGibbsFreeEnergyPT(pressure float64, temperature float64) float64 {
 	return gamma(pi, tau) * constants.R * temperature
 }
 
-// @Override
-func SpecificInternalEnergyPT(pressure float64, temperature float64) float64 {
+
+func (r *Region)SpecificInternalEnergyPT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 	tau := Tref / temperature
@@ -320,16 +326,16 @@ func SpecificInternalEnergyPT(pressure float64, temperature float64) float64 {
 	return (tau*gammaTau(pi, tau) - pi*gammaPi(pi, tau)) * constants.R * temperature
 }
 
-// @Override
-func SpecificIsobaricHeatCapacityPT(pressure float64, temperature float64) float64 {
+
+func (r *Region)SpecificIsobaricHeatCapacityPT(pressure float64, temperature float64) float64 {
 
 	tau := Tref / temperature
 
 	return -tau * tau * gammaTauTau(pressure/pRef, tau) * constants.R
 }
 
-// @Override
-func SpecificIsochoricHeatCapacityPT(pressure float64, temperature float64) float64 {
+
+func (r *Region)SpecificIsochoricHeatCapacityPT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 	tau := Tref / temperature
@@ -338,16 +344,16 @@ func SpecificIsochoricHeatCapacityPT(pressure float64, temperature float64) floa
 	return (-tau*tau*gammaTauTau(pi, tau) + x*x/gammaPiPi(pi, tau)) * constants.R
 }
 
-// @Override
-func SpecificVolumePT(pressure float64, temperature float64) float64 {
+
+func (r *Region)SpecificVolumePT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 
 	return pi * gammaPi(pi, Tref/temperature) / 1e3 * constants.R * temperature / pressure
 }
 
-// @Override
-func SpeedOfSoundPT(pressure float64, temperature float64) float64 {
+
+func (r *Region)SpeedOfSoundPT(pressure float64, temperature float64) float64 {
 
 	pi := pressure / pRef
 	tau := Tref / temperature
@@ -357,13 +363,13 @@ func SpeedOfSoundPT(pressure float64, temperature float64) float64 {
 	return math.Sqrt((gPi * gPi / (x*x/(tau*tau*gammaTauTau(pi, tau)) - gammaPiPi(pi, tau))) * 1e3 * constants.R * temperature)
 }
 
-// @Override
-func TemperatureHS(enthalpy float64, entropy float64) float64 {
-	return TemperaturePH(PressureHS(enthalpy, entropy), enthalpy)
+
+func (r *Region)TemperatureHS(enthalpy float64, entropy float64) float64 {
+	return r.TemperaturePH(r.PressureHS(enthalpy, entropy), enthalpy)
 }
 
-// @Override
-func TemperaturePH(pressure float64, enthalpy float64) float64 {
+
+func (r *Region)TemperaturePH(pressure float64, enthalpy float64) float64 {
 
 	var out float64 = 0
 	x := enthalpy/2500 + 1
@@ -374,8 +380,8 @@ func TemperaturePH(pressure float64, enthalpy float64) float64 {
 	return out
 }
 
-// @Override
-func TemperaturePS(pressure float64, entropy float64) float64 {
+
+func (r *Region)TemperaturePS(pressure float64, entropy float64) float64 {
 
 	var out float64 = 0
 
@@ -385,8 +391,4 @@ func TemperaturePS(pressure float64, entropy float64) float64 {
 	return out
 }
 
-var Region1 = struct {
-	Name string
-}{
-	Name: Name,
-}
+
