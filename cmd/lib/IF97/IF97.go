@@ -4,6 +4,7 @@ import (
 	"errors"
 	"math"
 
+	"if97.com/cmd/lib/firstRegion"
 	"if97.com/cmd/lib/fourthRegion"
 	"if97.com/cmd/lib/region"
 	rangeError "if97.com/cmd/lib/region/RangeError"
@@ -23,32 +24,19 @@ const (
 type WSPcalculator interface {
 }
 
-type IF97calc interface{
-	*region.IF97Region
-	SetUnitSystem(unitsysnum UNITSYSNUM)
-	ConvertToDefault(quantity []float64, value float64) float64
-	ConvertFromDefault(quantity []float64, value float64)float64
-	ConvertFromDefaultQuantity(unitSystem units.UnitSystem, quantity quantity.Quantity, value float64) (float64, error)
-	PrandtlHS(enthalpy float64, entropy float64) (float64 , error)
-	PrandtlPH(pressure float64, enthalpy float64) (float64, error)
-	DynamicViscosityRhoT(rho float64, T float64) float64
-	DielectricConstantRhoT(rho float64, T float64) (float64,error)
-	RefractiveIndexRhoTLambda(rho float64, T float64, lambdaL float64) (float64,error)
-	ThermalDiffusivityPH(p float64, h float64) float64
-	ThermalConductivityRhoT(rho float64, T float64) float64	
-}
+
 
 type IF97 struct {
 	UnitSystem units.UnitSystem;
 	*region.IF97Region
 }
 
-var IF97test = region.IF97Region{}
+var IF97test IF97calc = region.IF97Region{}
 
 func New(unitSystem UNITSYSNUM) IF97{
 	return IF97{
 		units.UNITSYSTEMS[int(unitSystem)],
-		&region.IF97reg,
+		&region.IF97Region{"",&firstRegion.REGION1},
 	}
 }
 
@@ -160,9 +148,10 @@ func (if97 *IF97)PrandtlPH(pressure float64, enthalpy float64) (float64, error) 
     }
 
 	var cp float64
+	
 	rho := 1 / reg.SpecificVolumePH(p, h)
 	T := reg.TemperaturePH(p, h)
-	eta := if97.DynamicViscosityRhoT(rho, T)
+	eta,_ := if97.DynamicViscosityRhoT(rho, T)
 	lambda := if97.ThermalConductivityRhoT(rho, T) / 1e3
 
 	if reg.Name == "Region4" {
@@ -186,7 +175,7 @@ func (if97 *IF97)calcPrandtlPT(p float64, T float64) (float64,error) {
     }
 
 	rho := 1 / reg.SpecificVolumePT(p, T)
-	eta := if97.DynamicViscosityRhoT(rho, T)
+	eta,_ := if97.DynamicViscosityRhoT(rho, T)
 	cp := reg.SpecificIsobaricHeatCapacityPT(p, T)
 	lambda := if97.ThermalConductivityRhoT(rho, T) / 1e3
 
@@ -250,7 +239,7 @@ func (if97 *IF97)DielectricConstantRhoT(rho float64, T float64) (float64,error) 
      * @param T temperature [K]
      * @return dynamic viscosity [Pa-s]
      */
-    func (if97 *IF97) DynamicViscosityRhoT(rho float64, T float64) float64 {
+    func (if97 *IF97) DynamicViscosityRhoT(rho float64, T float64) (float64,error) {
 
         delta := rho / constants.Rhoc
                 theta := T / constants.Tc
@@ -292,7 +281,7 @@ func (if97 *IF97)DielectricConstantRhoT(rho float64, T float64) (float64,error) 
         }
         psi1 = math.Exp(delta * psi1);
 
-        return psi0 * psi1 * 1e-6;
+        return psi0 * psi1 * 1e-6,nil
     }
 
     /**
@@ -586,7 +575,10 @@ func (if97 *IF97)DielectricConstantRhoT(rho float64, T float64) (float64,error) 
 		if err != nil{
 			return -1,err
 		}
-		v:=if97.SpecificVolumePT(p, T)
+		v,err:=if97.SpecificVolumePT(p, T)
+		if err!=nil{
+			return -1,err
+		}
 		retval, err := if97.DielectricConstantRhoT(1 / v, T)
 		if err != nil{
 			return -1,err
@@ -612,7 +604,10 @@ func (if97 *IF97)DielectricConstantRhoT(rho float64, T float64) (float64,error) 
 		 if err!=nil{
 			return -1,err
 		 }
-		 retval:=if97.SpecificVolumePT(p, T) 
+		 retval,err:=if97.SpecificVolumePT(p, T)
+		 if err!=nil{
+			return -1,err
+		}
 
         return 1e3 * p * retval/ (constants.R * T),nil;
 
@@ -641,7 +636,10 @@ func (if97 *IF97)DielectricConstantRhoT(rho float64, T float64) (float64,error) 
 			if err!=nil{
 				return -1,err
 			}
-            v := if97.SpecificVolumePT(p, T);
+            v,err := if97.SpecificVolumePT(p, T);
+			if err!=nil{
+				return -1,err
+			}
 
             return if97.RefractiveIndexRhoTLambda(1 / v, T, lambda);
 
@@ -669,15 +667,154 @@ func (if97 *IF97)DielectricConstantRhoT(rho float64, T float64) (float64,error) 
 		if err!=nil{
 			return -1,err
 		}
-		v:=if97.SpecificVolumePT(p, T);
-
-        eta = if97.DynamicViscosityRhoT(1 / v, T);
+		v,err:=if97.SpecificVolumePT(p, T);
+		if err!=nil{
+			return -1,err
+		}
+        eta,_ = if97.DynamicViscosityRhoT(1 / v, T);
 
         return if97.ConvertFromDefault(if97.UnitSystem.DYNAMIC_VISCOSITY, eta),nil;
     }
 
+    /**
+     * Isothermal compressibility as a function of pressure &amp; temperature.
+     *
+     * @param pressure absolute pressure
+     * @param temperature temperature
+     * @return isothermal compressibility
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97)CompressibilityPT(pressure float64, temperature float64) (float64,error){
 
-	
+        		p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+                T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
+                var kappaT float64
+
+ 
+       _,err := if97.GetRegionPT(p, T)
+	   if err!=nil{
+		return -1,err
+	}
+	   
+	   kappaT = if97.IsothermalCompressibilityPT(p, T);
+
+        return if97.ConvertFromDefault(if97.UnitSystem.COMPRESSIBILITY, kappaT),nil;
+    }
+
+
+	    /**
+     * Heat capacity ratio as a function of pressure &amp; temperature.
+     *
+     * @param pressure absolute pressure
+     * @param temperature temperature
+     * @return heat capacity ratio
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97)HeatCapacityRatioPT(pressure float64, temperature float64) (float64,error) {
+
+        		p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+                T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
+
+				_,err := if97.GetRegionPT(p, T)
+				if err!=nil{
+				 return -1,err
+			 }
+		retval:=if97.Region.HeatCapacityRatioPT(p, T);	
+			
+			
+		return if97.ConvertFromDefault(if97.UnitSystem.COMPRESSIBILITY, retval),nil;
+    }
+	    /**
+     * Specific enthalpy as a function of pressure &amp; temperature.
+     *
+     * @param pressure absolute pressure
+     * @param temperature temperature
+     * @return specific enthalpy
+     * @throws OutOfRangeException out-of-range exception
+     */
+	func (if97 *IF97) SpecificEnthalpyPT(pressure float64, temperature float64) (float64,error) {
+
+        p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+                T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
+
+				_,err := if97.GetRegionPT(p, T)
+				if err!=nil{
+				 return -1,err
+			 }
+  
+            h := if97.Region.SpecificEnthalpyPT(p, T);
+
+
+        return if97.ConvertFromDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, h),nil;
+    }
+
+    /**
+     * Isentropic exponent as a function of pressure &amp; temperature.
+     *
+     * @param pressure absolute pressure
+     * @param temperature temperature
+     * @return isentropic exponent
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97)IsentropicExponentPT(pressure float64, temperature float64) (float64,error) {
+
+		p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+		T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
+
+		_,err := if97.GetRegionPT(p, T)
+		if err!=nil{
+		 	return -1,err
+	 	}
+		retval:=if97.Region.IsentropicExponentPT(p, T);	
+
+        return  retval,nil;
+	 }	
+    /**
+     * Specific volume as a function of pressure &amp; temperature.
+     *
+     * @param pressure absolute pressure
+     * @param temperature temperature
+     * @return specific volume
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97)SpecificVolumePT(pressure float64, temperature float64) (float64,error){
+		p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+		T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
+
+        var v float64
+
+        _,err := if97.GetRegionPT(p, T)
+		if err!=nil{
+		 	return -1,err
+	 	}
+			
+		v=if97.Region.SpecificVolumePT(p, T);
+
+        return if97.ConvertFromDefault(if97.UnitSystem.SPECIFIC_VOLUME, v),nil;
+    }
+	    /**
+     * Specific entropy as a function of pressure &amp; temperature.
+     *
+     * @param pressure absolute pressure
+     * @param temperature temperature
+     * @return specific entropy
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97)SpecificEntropyPT(pressure float64, temperature float64) (float64,error){
+
+		p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+		T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
+    	var s float64
+		_,err := if97.GetRegionPT(p, T)
+		if err!=nil{
+		 	return -1,err
+	 	}
+   
+        s = if97.Region.SpecificEntropyPT(p, T);
+
+    
+        return if97.ConvertFromDefault(if97.UnitSystem.SPECIFIC_ENTROPY, s),nil;
+    }
     func (if97 *IF97)ThermalConductivityRhoT(rho float64, T float64) float64 {
 
         /*
@@ -710,13 +847,202 @@ func (if97 *IF97)DielectricConstantRhoT(rho float64, T float64) (float64,error) 
 
         return math.Sqrt(theta) * Lambda0 + Lambda1 + Lambda2;
     }
+	    /**
+     * Temperature. [IF97 Supplementary Release S04]
+     *
+     * @param enthalpy specific enthalpy
+     * @param entropy specific entropy
+     * @return temperature
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97) TemperatureHS(enthalpy float64, entropy float64) (float64,error) {
 
-    func  (if97 *IF97)ThermalDiffusivityPH(p float64, h float64) float64 {
-
+		h := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, enthalpy)
+		s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
+         var T float64;
+		 _,err := if97.GetRegionHS(enthalpy, entropy)
+		if err!=nil{
+		 	return -1,err
+	 	}
       
+        T = if97.Region.TemperatureHS(h, s);
 
-         		rho := 1 / if97.SpecificVolumePH(p, h)
-                T := if97.TemperaturePH(p, h)
+    
+        return if97.ConvertFromDefault(if97.UnitSystem.TEMPERATURE, T),nil;
+    }
+	
+    /**
+     * Pressure as a function of specific enthalpy &amp; specific entropy.
+     *
+     * @param enthalpy specific enthalpy
+     * @param entropy specific entropy
+     * @return pressure
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97) PressureHS(enthalpy float64, entropy float64) (float64,error) {
+
+        h := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, enthalpy)
+		s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
+        var p float64;
+
+        _,err := if97.GetRegionHS(enthalpy, entropy)
+		if err!=nil{
+		 	return -1,err
+	 	}
+			
+		p = if97.Region.PressureHS(h, s);
+
+    
+        return if97.ConvertFromDefault(if97.UnitSystem.PRESSURE, p),nil;
+    }
+
+    /**
+     * Temperature.
+     *
+     * @param pressure absolute pressure
+     * @param entropy specific entropy
+     * @return temperature
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97) TemperaturePS(pressure float64, entropy float64) (float64,error) {
+
+       p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+       s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
+    	var T float64;
+
+		_,err := if97.GetRegionPS(p, s)
+		if err!=nil{
+		 	return -1,err
+	 	}
+		T=if97.Region.TemperaturePS(p, s)
+        return if97.ConvertFromDefault(if97.UnitSystem.TEMPERATURE, T),nil;
+    }
+    /**
+     * Temperature.
+     *
+     * @param pressure absolute pressure [MPa]
+     * @param enthalpy specific enthalpy [kJ/(kg)]
+     * @return temperature [K]
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97) TemperaturePH(pressure float64, enthalpy float64) (float64,error)  {
+
+        p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+        h := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, enthalpy)
+        var T float64;
+		_,err := if97.GetRegionPH(p, h)
+		if err!=nil{
+			return -1,err
+		}
+        T=if97.Region.TemperaturePH(p, h)
+
+        return if97.ConvertFromDefault(if97.UnitSystem.TEMPERATURE, T),nil;
+    }
+	   /**
+     * Specific volume as a function of pressure &amp; specific enthalpy.
+     *
+     * @param pressure absolute pressure
+     * @param enthalpy specific enthalpy
+     * @return specific volume
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97) SpecificVolumePH(pressure float64, enthalpy float64) (float64,error) {
+
+		p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+        h := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, enthalpy)
+        var v float64;
+		_,err := if97.GetRegionPH(p, h)
+		if err!=nil{
+			return -1,err
+		}
+        v = if97.Region.SpecificVolumePH(p, h);
+
+        return if97.ConvertFromDefault(if97.UnitSystem.SPECIFIC_VOLUME, v),nil;
+    }
+	    /**
+     * Specific volume as a function of pressure &amp; specific entropy.
+     *
+     * @param pressure absolute pressure
+     * @param entropy specific entropy
+     * @return specific volume
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97) SpecificVolumePS(pressure float64, entropy float64) (float64,error) {
+
+
+		p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+		s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
+		 var v float64;
+ 
+		 _,err := if97.GetRegionPS(p, s)
+		 if err!=nil{
+			  return -1,err
+		  }
+		 v=if97.Region.SpecificVolumePS(p, s)
+
+        return if97.ConvertFromDefault(if97.UnitSystem.SPECIFIC_VOLUME, v),nil;
+    }
+	    /**
+     * Speed of sound as a function of pressure &amp; specific enthalpy.
+     *
+     * @param pressure absolute pressure
+     * @param enthalpy specific enthalpy
+     * @return speed of sound
+     * @throws OutOfRangeException out-of-range exception
+     * @see #speedOfSoundPT(double, double)
+     */
+	 func (if97 *IF97) SpeedOfSoundPH(pressure float64, enthalpy float64) (float64,error){
+		p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+        h := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, enthalpy)
+        var w float64;
+		_,err := if97.GetRegionPH(p, h)
+		if err!=nil{
+			return -1,err
+		}
+        if (if97.Region.GetName()=="Region 4") {
+             w = fourthRegion.REGION4.SpeedOfSoundPH(p, h);
+        } else {
+            T := if97.Region.TemperaturePH(p, h);
+            w = if97.Region.SpeedOfSoundPT(p, T);
+		}   
+        return if97.ConvertFromDefault(if97.UnitSystem.SPEED_OF_SOUND, w),nil;
+    }
+
+	/**
+     * Speed of sound as a function of pressure &amp; temperature.
+     *
+     * @param pressure absolute pressure
+     * @param temperature temperature
+     * @return speed of sound
+     * @throws OutOfRangeException out-of-range exception
+     */
+	 func (if97 *IF97)SpeedOfSoundPT(pressure float64, temperature float64) (float64,error) {
+		p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+		T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
+        var w float64;
+		_,err := if97.GetRegionPT(p, T)
+		if err!=nil{
+			return -1,err
+		}
+
+       
+        w = if97.Region.SpeedOfSoundPT(p, T);
+
+ 
+        return if97.ConvertFromDefault(if97.UnitSystem.SPEED_OF_SOUND, w),nil;
+    }
+
+
+    func  (if97 *IF97)ThermalDiffusivityPH(p float64, h float64) (float64,error) {
+         		v,err  := if97.SpecificVolumePH(p, h)
+				if err!=nil{
+					return -1,err
+				}
+				rho:=1/v
+                T,err := if97.TemperaturePH(p, h)
+				if err!=nil{
+					return -1,err
+				}
                 lambda := if97.ThermalConductivityRhoT(rho, T)
                 var cp float64;
 
@@ -726,5 +1052,5 @@ func (if97 *IF97)DielectricConstantRhoT(rho float64, T float64) (float64,error) 
         } else {
             cp = if97.SpecificIsobaricHeatCapacityPT(p, T);
         }
-        return lambda / rho / cp;
+        return lambda / rho / cp,nil
     }

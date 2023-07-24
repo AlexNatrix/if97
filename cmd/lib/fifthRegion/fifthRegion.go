@@ -266,6 +266,20 @@ func (r *Region)HeatCapacityRatioPT(pressure float64, temperature float64) float
 	return 1 / (1 + x*x/(tau*tau*(gammaOTauTau(tau)+gammaRTauTau(pi, tau))*(1-pi*pi*gammaRPiPi(pi, tau))))
 }
 
+func  (r *Region)SpecificVolumePH(p float64, h float64) float64 {
+
+	T := r.TemperaturePH(p, h)
+
+	return r.SpecificVolumePT(p, T)
+}
+
+
+func (r *Region)SpecificVolumePS(p float64, s float64) float64 {
+
+	T := r.TemperaturePS(p, s)
+
+	return r.SpecificVolumePT(p, T)
+}
 
 func (r *Region)IsentropicExponentPT(pressure float64, temperature float64) float64 {
 

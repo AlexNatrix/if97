@@ -661,6 +661,20 @@ func (r *Region) IsobaricCubicExpansionCoefficientPT(pressure float64, temperatu
 	return (1 - tau*pi*gammaRPiTau(pi, tau)/(1+pi*gammaRPi(pi, tau))) / temperature
 }
 
+func  (r *Region)SpecificVolumePH(p float64, h float64) float64 {
+
+	T := r.TemperaturePH(p, h)
+
+	return r.SpecificVolumePT(p, T)
+}
+
+
+func (r *Region)SpecificVolumePS(p float64, s float64) float64 {
+
+	T := r.TemperaturePS(p, s)
+
+	return r.SpecificVolumePT(p, T)
+}
 
 func (r *Region)IsothermalCompressibilityPT(pressure float64, temperature float64) float64 {
 

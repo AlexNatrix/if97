@@ -1851,14 +1851,14 @@ func (r *Region)SpecificVolumeHS(enthalpy float64, entropy float64) float64 {
 
 func (r *Region)SpecificVolumePH(pressure float64, enthalpy float64) float64 {
 
-	pi := pressure / 100
+	pi := pressure / 100.0
 
 	switch getSubRegionPH(pressure, enthalpy) {
 	case "R3a":
-		return omegaA(pi, enthalpy/2100) * 0.0028
+		return omegaA(pi, enthalpy/2100.0) * 0.0028
 
 	case "R3b":
-		return omegaB(pi, enthalpy/2800) * 0.0088
+		return omegaB(pi, enthalpy/2800.0) * 0.0088
 
 	default:
 		return math.NaN()

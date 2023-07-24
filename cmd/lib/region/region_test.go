@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"if97.com/cmd/lib/firstRegion"
 )
 
 func TestRegion(t *testing.T) {
@@ -108,7 +109,7 @@ func TestRegion(t *testing.T) {
 
 
 
-	var IF97test = IF97Region{}
+	var IF97test = IF97Region{"",&firstRegion.REGION1}
 	selectCases:= []struct {
 		name   string
 		f      func(pressure float64, temperature float64) (int,error)
@@ -168,4 +169,20 @@ func TestRegion(t *testing.T) {
 	}})
 
 
+	t.Run("MaintestRegion", func(t *testing.T) {
+		t.Parallel()
+		for _, x := range [][]float64{
+					{0.417301218e1 / 0.412120160e1, 3, 300}, // region 1
+					{0.401008987e1 / 0.391736606e1, 80, 300},
+					{0.465580682e1 / 0.322139223e1, 3, 500},
+					{0.191300162e1 / 0.144132662e1, 0.0035, 300}, // region 2
+					{0.208141274e1 / 0.161978333e1, 0.0035, 700},
+					{0.103505092e2 / 0.297553837e1, 30, 700},
+					{0.261609445e1 / 0.215337784e1, 0.5, 1500}, // region 5
+					{0.272724317e1 / 0.219274829e1, 30, 1500},
+					{0.288569882e1 / 0.239589436e1, 30, 2000},
+				}{
+			
+		assert.InDelta(t,x[0], IF97test.IsothermalCompressibilityPT(x[1], x[2]), 1e-8);
+	}})
 }

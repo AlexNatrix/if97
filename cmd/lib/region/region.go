@@ -160,7 +160,25 @@ type Region interface {
 	 * @return specific volume [m&sup3;/kg]
 	 */
 	SpecificVolumePT(p float64, T float64) float64
+	/**
+	* Specific volume.
+	*
+	* @param p pressure [MPa]
+	* @param h specific enthalpy [kJ/kg]
+	* @return specific volume [m&sup3;/kg]
+	*/
+	SpecificVolumePH(p float64, h float64) float64
 
+	/**
+	* Specific volume as a function of pressure & specific entropy.
+	*
+	* @param p pressure [MPa]
+	* @param s specific entropy [kJ/kg-K]
+	* @return specific volume [m&sup3;/kg]
+	*/
+	SpecificVolumePS(p float64, s float64) float64
+	
+	
 	/**
 	 * Speed of sound.
 	 *
@@ -203,8 +221,7 @@ var Select map[int]Region = map[int]Region{
 	2:&secondRegion.REGION2,
 	3:&thirdRegion.REGION3,
 	4:&fourthRegion.REGION4,
-	5:&fifthRegion.REGION5,
-	
+	5:&fifthRegion.REGION5,	
 }
 
 type IF97Region struct {
@@ -311,35 +328,8 @@ func (r *IF97Region) SpecificVolumeHS(h float64, s float64) float64 {
 	return r.SpecificVolumePT(p, T)
 }
 
-/**
- * Specific volume.
- *
- * @param p pressure [MPa]
- * @param h specific enthalpy [kJ/kg]
- * @return specific volume [m&sup3;/kg]
- * @throws OutOfRangeException out-of-range exception
- */
-func (r *IF97Region) SpecificVolumePH(p float64, h float64) float64 {
 
-	T := r.TemperaturePH(p, h)
 
-	return r.SpecificVolumePT(p, T)
-}
-
-/**
- * Specific volume as a function of pressure & specific entropy.
- *
- * @param p pressure [MPa]
- * @param s specific entropy [kJ/kg-K]
- * @return specific volume [m&sup3;/kg]
- * @throws OutOfRangeException out-of-range exception
- */
-func (r *IF97Region) SpecificVolumePS(p float64, s float64) float64 {
-
-	T := r.TemperaturePS(p, s)
-
-	return r.SpecificVolumePT(p, T)
-}
 
 func saturationPressure3(s float64) float64 {
 
@@ -651,9 +641,11 @@ func (r *IF97Region) GetRegionHS(enthalpy float64, entropy float64) (int, error)
 		}
 	} else if entropy <= 9.155759395 {
 		if enthalpy <= specificEnthalpy2ab(entropy) {
+			r.Region = &fourthRegion.REGION4
 			return 4, nil
 		}
 	}
+	r.Region = &secondRegion.REGION2
 	return 2, nil
 }
 
@@ -692,29 +684,37 @@ func (r *IF97Region) GetRegionPH(pressure float64, enthalpy float64) (int, error
 		Ts := fourthRegion.REGION4.SaturationTemperatureP(pressure)
 
 		if enthalpy < firstRegion.REGION1.SpecificEnthalpyPT(pressure, Ts) {
+			r.Region = &firstRegion.REGION1
 			return 1, nil
 
 		} else if enthalpy > secondRegion.REGION2.SpecificEnthalpyPT(pressure, Ts) {
+			r.Region = &secondRegion.REGION2
 			return 2, nil
 
 		} else {
+			r.Region = &fourthRegion.REGION4
 			return 4, nil
 		}
 	} else if hs13 <= enthalpy && enthalpy <= hs23 {
 		// region 3 or 4
 		if pressure > fourthRegion.SaturationPressureB34H(enthalpy)*(1-4.3e-6) {
+			r.Region = &thirdRegion.REGION3
 			return 3, nil
 		} else {
+			r.Region = &fourthRegion.REGION4
 			return 4, nil
 		}
 
 	} else if enthalpy <= firstRegion.REGION1.SpecificEnthalpyPT(pressure, T13) {
+		r.Region = &firstRegion.REGION1
 		return 1, nil
 
 	} else if enthalpy >= secondRegion.REGION2.SpecificEnthalpyPT(pressure, temperatureB23P(pressure)) {
+		r.Region = &secondRegion.REGION2
 		return 2, nil
 
 	} else {
+		r.Region = &thirdRegion.REGION3
 		return 3, nil
 	}
 }
@@ -789,15 +789,19 @@ func (r *IF97Region) GetRegionPT(pressure float64, temperature float64) (int, er
 	   Select Region
 	*/
 	if temperature > T25 {
+		r.Region = &fifthRegion.REGION5
 		return 5, nil
 
 	} else if temperature > T13 {
 		if pressure > pressureB23(temperature) {
+			r.Region = &thirdRegion.REGION3
 			return 3, nil
 		}
 	} else if pressure > fourthRegion.REGION4.SaturationPressureT(temperature) {
+		r.Region = &firstRegion.REGION1
 		return 1, nil
 	}
+	r.Region = &secondRegion.REGION2
 	return 2, nil
 }
 
@@ -837,26 +841,33 @@ func (r *IF97Region) GetRegionPS(pressure float64, entropy float64) (int,error) 
 		Tsat := fourthRegion.REGION4.SaturationTemperatureP(pressure)
 
 		if entropy < firstRegion.REGION1.SpecificEntropyPT(pressure, Tsat) {
+			r.Region = &firstRegion.REGION1
 			return 1,nil
 
 		} else if entropy > secondRegion.REGION2.SpecificEntropyPT(pressure, Tsat) {
-			return 1,nil
+			r.Region = &secondRegion.REGION2
+			return 2,nil
 
 		} else {
-			return 1,nil
+			r.Region = &fourthRegion.REGION4
+			return 4,nil
 		}
 	} else if firstRegion.REGION1.SpecificEntropyPT(ps13, T13) <= entropy &&
 		entropy <= secondRegion.REGION2.SpecificEntropyPT(ps13, T13) &&
 		pressure < saturationPressure3(entropy) {
-		return 1,nil
+			r.Region = &fourthRegion.REGION4
+		return 4,nil
 
 	} else if entropy <= firstRegion.REGION1.SpecificEntropyPT(pressure, T13) {
+		r.Region = &firstRegion.REGION1
 		return 1,nil
 
 	} else if entropy < secondRegion.REGION2.SpecificEntropyPT(pressure, temperatureB23P(pressure)) {
-		return 1,nil
+		r.Region = &thirdRegion.REGION3
+		return 3,nil
 
 	} else {
-		return 1,nil
+		r.Region = &secondRegion.REGION2
+		return 2,nil
 	}
 }

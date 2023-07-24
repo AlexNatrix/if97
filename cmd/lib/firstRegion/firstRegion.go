@@ -351,7 +351,20 @@ func (r *Region)SpecificVolumePT(pressure float64, temperature float64) float64 
 
 	return pi * gammaPi(pi, Tref/temperature) / 1e3 * constants.R * temperature / pressure
 }
+func  (r *Region)SpecificVolumePH(p float64, h float64) float64 {
 
+	T := r.TemperaturePH(p, h)
+
+	return r.SpecificVolumePT(p, T)
+}
+
+
+func (r *Region)SpecificVolumePS(p float64, s float64) float64 {
+
+	T := r.TemperaturePS(p, s)
+
+	return r.SpecificVolumePT(p, T)
+}
 
 func (r *Region)SpeedOfSoundPT(pressure float64, temperature float64) float64 {
 
