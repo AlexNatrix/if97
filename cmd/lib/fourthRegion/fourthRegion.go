@@ -4,10 +4,12 @@ import (
 	"math"
 
 	"if97.com/cmd/lib/firstRegion"
+	rangeError "if97.com/cmd/lib/region/RangeError"
 	"if97.com/cmd/lib/secondRegion"
 	"if97.com/cmd/lib/thirdRegion"
 
 	"if97.com/cmd/lib/utils/constants"
+	"if97.com/cmd/lib/utils/quantity"
 )
 
 const (
@@ -95,8 +97,6 @@ var (
 		{28, 36, .317247449371057e11}}
 )
 
-
-
 var (
 	p0   = REGION4.SaturationPressureT(constants.T0)
 	s2   = secondRegion.REGION2.SpecificEntropyPT(p0, constants.T0)
@@ -108,8 +108,6 @@ var (
 	sc   = thirdRegion.REGION3.SpecificEntropyRhoT(constants.Rhoc, constants.Tc)
 )
 
-
-
 type Region struct {
 	Name string
 }
@@ -118,18 +116,19 @@ var REGION4 = Region{
 	Name: Name,
 }
 
-func (r *Region)GetName() string{
+func (r *Region) GetName() string {
 	return r.Name
 }
 
-func checkB34S(entropy float64) {
+func checkB34S(entropy float64) error {
 
 	if entropy < ss13 {
-		panic("OutOfRangeException") //(Quantity.s, entropy, ss13);
+		rangeError.ErrorFromValue(quantity.S, entropy, ss13)
 
 	} else if entropy > ss23 {
-		panic("OutOfRangeException") //OutOfRangeException(Quantity.s, entropy, ss23);
+		rangeError.ErrorFromValue(quantity.S, entropy, ss23)
 	}
+	return nil
 }
 
 func specificEnthalpy3a(s float64) float64 {
@@ -235,56 +234,56 @@ func specificEnthalpy2ab(s float64) float64 {
 	return math.Exp(eta) * x[2]
 }
 
-
-//TODO: trwo error
-func checkHS(enthalpy float64, entropy float64) {
+func CheckHS(enthalpy float64, entropy float64) error {
 
 	if entropy < ss23 {
-		panic("OutOfRangeException") //OutOfRangeException(Quantity.s, entropy, ss23);
+		return rangeError.ErrorFromValue(quantity.S, entropy, ss23)
 
 	} else if entropy > s2 {
-		panic("OutOfRangeException") //OutOfRangeException(Quantity.s, entropy, s2);
+		return rangeError.ErrorFromValue(quantity.S, entropy, s2)
 
 	} else if entropy <= sc {
 		h3a := specificEnthalpy3a(entropy)
 
 		if enthalpy > h3a {
-			panic("OutOfRangeException") //OutOfRangeException(Quantity.h, enthalpy, h3a);
+			return rangeError.ErrorFromValue(quantity.H, enthalpy, h3a)
 		}
 	} else if entropy < constants.S2bc {
 		h2c3b := specificEnthalpy2c3b(entropy)
 
 		if enthalpy > h2c3b {
-			panic("OutOfRangeException") //OutOfRangeException(Quantity.h, enthalpy, h2c3b);
+			return rangeError.ErrorFromValue(quantity.H, enthalpy, h2c3b)
 		}
 	} else {
 		h2ab := specificEnthalpy2ab(entropy)
 
 		if enthalpy > h2ab {
-			panic("OutOfRangeException") //OutOfRangeException(Quantity.h, enthalpy, h2ab);
+			return rangeError.ErrorFromValue(quantity.H, enthalpy, h2ab)
 		}
 	}
+	return nil
 }
 
-//TODO: fix
-func checkP(pressure float64) {
+func CheckP(pressure float64) error {
 
 	if pressure < p0 {
-		panic("OutOfRangeException") //OutOfRangeException(Quantity.p, pressure, p0);
+		return rangeError.ErrorFromValue(quantity.P, pressure, p0)
 
 	} else if pressure > constants.Pc {
-		panic("OutOfRangeException") //OutOfRangeException(Quantity.p, pressure, pc);
+		return rangeError.ErrorFromValue(quantity.P, pressure, constants.Pc)
 	}
+	return nil
 }
-//TODO: fix
-func checkT(temperature float64) {
+
+func CheckT(temperature float64) error {
 
 	if temperature < constants.T0 {
-		panic("OutOfRangeException") //OutOfRangeException(Quantity.T, temperature, T0);
+		return rangeError.ErrorFromValue(quantity.T, temperature, constants.T0)
 
 	} else if temperature > constants.Tc {
-		panic("OutOfRangeException") //OutOfRangeException(Quantity.T, temperature, Tc);
+		return rangeError.ErrorFromValue(quantity.T, temperature, constants.Tc)
 	}
+	return nil
 }
 
 func densitiesRegion3(pressure float64, enthalpies []float64) []float64 {
@@ -304,35 +303,32 @@ func densitiesRegion3(pressure float64, enthalpies []float64) []float64 {
 func DerivativeP(pressure float64) float64 {
 
 	T := REGION4.SaturationTemperatureP(pressure) // [K]
-	h := specificEnthalpiesP(pressure)    // [kJ/kg]
-	v := specificVolumesP(pressure)       // [m³/kg]
+	h := specificEnthalpiesP(pressure)            // [kJ/kg]
+	v := specificVolumesP(pressure)               // [m³/kg]
 
 	return T * (v[1] - v[0]) / (h[1] - h[0]) / 1e3
 } //TODO Replace by derivative of elementary function
 
-
-func (r *Region)HeatCapacityRatioPT(pressure float64, temperature float64) float64 {
+func (r *Region) HeatCapacityRatioPT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
-
-func (r *Region)IsentropicExponentPT(pressure float64, temperature float64) float64 {
+func (r *Region) IsentropicExponentPT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
-func (r *Region)IsobaricCubicExpansionCoefficientPH(pressure float64, enthalpy float64) float64 {
+func (r *Region) IsobaricCubicExpansionCoefficientPH(pressure float64, enthalpy float64) float64 {
 
 	x := r.VapourFractionPH(pressure, enthalpy)
 
 	return r.IsobaricCubicExpansionCoefficientPX(pressure, x)
 }
 
-
-func (r *Region)IsobaricCubicExpansionCoefficientPT(pressure float64, temperature float64) float64 {
+func (r *Region) IsobaricCubicExpansionCoefficientPT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
-func (r *Region)IsobaricCubicExpansionCoefficientPX(pressure float64, vapourFraction float64) float64 {
+func (r *Region) IsobaricCubicExpansionCoefficientPX(pressure float64, vapourFraction float64) float64 {
 
 	T := r.SaturationTemperatureP(pressure)
 	var alpha []float64
@@ -356,19 +352,18 @@ func (r *Region)IsobaricCubicExpansionCoefficientPX(pressure float64, vapourFrac
 	return valueX(vapourFraction, alpha)
 }
 
-func (r *Region)IsothermalCompressibilityPH(pressure float64, enthalpy float64) float64 {
+func (r *Region) IsothermalCompressibilityPH(pressure float64, enthalpy float64) float64 {
 
 	x := r.VapourFractionPH(pressure, enthalpy)
 
 	return r.IsothermalCompressibilityPX(pressure, x)
 }
 
-
-func (r *Region)IsothermalCompressibilityPT(pressure float64, temperature float64) float64 {
+func (r *Region) IsothermalCompressibilityPT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
-func (r *Region)IsothermalCompressibilityPX(pressure float64, vapourFraction float64) float64 {
+func (r *Region) IsothermalCompressibilityPX(pressure float64, vapourFraction float64) float64 {
 
 	T := r.SaturationTemperatureP(pressure)
 	var kappaT []float64
@@ -400,7 +395,7 @@ func (r *Region)IsothermalCompressibilityPX(pressure float64, vapourFraction flo
  * @return saturation pressure [MPa]
  */
 
-func (r *Region)PressureHS(enthalpy float64, entropy float64) float64 {
+func (r *Region) PressureHS(enthalpy float64, entropy float64) float64 {
 
 	T := r.TemperatureHS(enthalpy, entropy)
 
@@ -432,9 +427,12 @@ func SaturationPressureB34H(enthalpy float64) float64 {
  * @return saturation pressure [MPa]
  * @throws OutOfRangeException out-of-range exception
  */
-func saturationPressureB34S(entropy float64) float64 {
+func saturationPressureB34S(entropy float64) (float64, error) {
 
-	checkB34S(entropy)
+	err := checkB34S(entropy)
+	if err != nil {
+		return -1, err
+	}
 
 	sigma := entropy / 5.2
 	var pi float64 = 0
@@ -443,7 +441,7 @@ func saturationPressureB34S(entropy float64) float64 {
 	for _, ijn := range IJnS {
 		pi += ijn[2] * math.Pow(x[0], ijn[0]) * math.Pow(x[1], ijn[1])
 	}
-	return pi * 22
+	return pi * 22, err
 }
 
 /**
@@ -455,7 +453,7 @@ func saturationPressureB34S(entropy float64) float64 {
  * @param saturationTemperature saturation temperature [K]
  * @return saturation pressure [MPa]
  */
-func (r *Region)SaturationPressureT(saturationTemperature float64) float64 {
+func (r *Region) SaturationPressureT(saturationTemperature float64) float64 {
 
 	Ts_Tref := saturationTemperature / Tref
 	theta := Ts_Tref + n[8]/(Ts_Tref-n[9])
@@ -476,7 +474,7 @@ func (r *Region)SaturationPressureT(saturationTemperature float64) float64 {
  * @param saturationPressure saturation pressure [MPa]
  * @return saturation temperature [K]
  */
-func (r *Region)SaturationTemperatureP(saturationPressure float64) float64 {
+func (r *Region) SaturationTemperatureP(saturationPressure float64) float64 {
 
 	beta := math.Pow(saturationPressure/pRef, 0.25)
 	beta2 := beta * beta
@@ -510,16 +508,14 @@ func specificEnthalpiesP(pressure float64) []float64 {
 	}
 }
 
-
-func (r *Region)SpecificEnthalpyPS(pressure float64, entropy float64) float64 {
+func (r *Region) SpecificEnthalpyPS(pressure float64, entropy float64) float64 {
 
 	x := r.VapourFractionPS(pressure, entropy)
 
 	return r.SpecificEnthalpyPX(pressure, x)
 }
 
-
-func (r *Region)SpecificEnthalpyPT(pressure float64, temperature float64) float64 {
+func (r *Region) SpecificEnthalpyPT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
@@ -530,7 +526,7 @@ func (r *Region)SpecificEnthalpyPT(pressure float64, temperature float64) float6
  * @param vapourFraction vapour fraction [-]
  * @return specific enthalpy [kJ/kg]
  */
-func (r *Region)SpecificEnthalpyPX(pressure float64, vapourFraction float64) float64 {
+func (r *Region) SpecificEnthalpyPX(pressure float64, vapourFraction float64) float64 {
 
 	h := specificEnthalpiesP(pressure)
 
@@ -556,7 +552,7 @@ func signum(a float64) float64 {
  * @param pressure absolute pressure [MPa]
  * @return specific enthalpy [kJ/kg]
  */
-func (r *Region)SpecificEnthalpySaturatedLiquidP(pressure float64) float64 {
+func (r *Region) SpecificEnthalpySaturatedLiquidP(pressure float64) float64 {
 
 	if pressure > ps13 {
 		if pressure == constants.Pc {
@@ -604,7 +600,7 @@ func (r *Region)SpecificEnthalpySaturatedLiquidP(pressure float64) float64 {
  * @param pressure absolute pressure [MPa]
  * @return specific enthalpy [kJ/kg]
  */
-func (r *Region)SpecificEnthalpySaturatedVapourP(pressure float64) float64 {
+func (r *Region) SpecificEnthalpySaturatedVapourP(pressure float64) float64 {
 
 	if pressure > ps13 {
 		if pressure == constants.Pc {
@@ -657,15 +653,14 @@ func specificEntropiesP(pressure float64) []float64 {
  * @param enthalpy specific enthalpy [kJ/kg]
  * @return specific entropy [kJ/(kg K)]
  */
-func (r *Region)SpecificEntropyPH(pressure float64, enthalpy float64) float64 {
+func (r *Region) SpecificEntropyPH(pressure float64, enthalpy float64) float64 {
 
 	x := r.VapourFractionPH(pressure, enthalpy)
 
 	return r.SpecificEntropyPX(pressure, x)
 }
 
-
-func (r *Region)SpecificEntropyPT(pressure float64, temperature float64) float64 {
+func (r *Region) SpecificEntropyPT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
@@ -676,19 +671,18 @@ func (r *Region)SpecificEntropyPT(pressure float64, temperature float64) float64
  * @param vapourFraction vapour fraction [-]
  * @return specific entropy [kJ/(kg K)]
  */
-func (r *Region)SpecificEntropyPX(pressure float64, vapourFraction float64) float64 {
+func (r *Region) SpecificEntropyPX(pressure float64, vapourFraction float64) float64 {
 
 	s := specificEntropiesP(pressure)
 
 	return valueX(vapourFraction, s)
 }
 
-
-func (r *Region)SpecificEntropyRhoT(density float64, temperature float64) float64 {
+func (r *Region) SpecificEntropyRhoT(density float64, temperature float64) float64 {
 	panic("Region4.specificEntropyRhoT() pending implementation. Im Sorry")
 }
 
-func (r *Region)SpecificEntropySaturatedLiquidP(pressure float64) float64 {
+func (r *Region) SpecificEntropySaturatedLiquidP(pressure float64) float64 {
 
 	Ts := r.SaturationTemperatureP(pressure)
 
@@ -700,7 +694,7 @@ func (r *Region)SpecificEntropySaturatedLiquidP(pressure float64) float64 {
 	return firstRegion.REGION1.SpecificEntropyPT(pressure, Ts)
 }
 
-func (r *Region)SpecificEntropySaturatedVapourP(pressure float64) float64 {
+func (r *Region) SpecificEntropySaturatedVapourP(pressure float64) float64 {
 
 	Ts := r.SaturationTemperatureP(pressure)
 
@@ -712,8 +706,7 @@ func (r *Region)SpecificEntropySaturatedVapourP(pressure float64) float64 {
 	return secondRegion.REGION2.SpecificEntropyPT(pressure, Ts)
 }
 
-
-func (r *Region)SpecificGibbsFreeEnergyPT(pressure float64, temperature float64) float64 {
+func (r *Region) SpecificGibbsFreeEnergyPT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
@@ -724,26 +717,25 @@ func specificInternalEnergiesP(pressure float64) []float64 {
 	}
 }
 
-func (r *Region)SpecificInternalEnergyPH(pressure float64, enthalpy float64) float64 {
+func (r *Region) SpecificInternalEnergyPH(pressure float64, enthalpy float64) float64 {
 
 	x := r.VapourFractionPH(pressure, enthalpy)
 
 	return r.SpecificInternalEnergyPX(pressure, x)
 }
 
-
-func (r *Region)SpecificInternalEnergyPT(pressure float64, temperature float64) float64 {
+func (r *Region) SpecificInternalEnergyPT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
-func (r *Region)SpecificInternalEnergyPX(pressure float64, vapourFraction float64) float64 {
+func (r *Region) SpecificInternalEnergyPX(pressure float64, vapourFraction float64) float64 {
 
 	v := specificInternalEnergiesP(pressure)
 
 	return valueX(vapourFraction, v)
 }
 
-func (r *Region)SpecificInternalEnergySaturatedLiquidP(pressure float64) float64 {
+func (r *Region) SpecificInternalEnergySaturatedLiquidP(pressure float64) float64 {
 
 	Ts := r.SaturationTemperatureP(pressure)
 
@@ -755,7 +747,7 @@ func (r *Region)SpecificInternalEnergySaturatedLiquidP(pressure float64) float64
 	return firstRegion.REGION1.SpecificInternalEnergyPT(pressure, Ts)
 }
 
-func (r *Region)SpecificInternalEnergySaturatedVapourP(pressure float64) float64 {
+func (r *Region) SpecificInternalEnergySaturatedVapourP(pressure float64) float64 {
 
 	Ts := r.SaturationTemperatureP(pressure)
 
@@ -767,19 +759,18 @@ func (r *Region)SpecificInternalEnergySaturatedVapourP(pressure float64) float64
 	return secondRegion.REGION2.SpecificInternalEnergyPT(pressure, Ts)
 }
 
-func (r *Region)SpecificIsobaricHeatCapacityPH(pressure float64, enthalpy float64) float64 {
+func (r *Region) SpecificIsobaricHeatCapacityPH(pressure float64, enthalpy float64) float64 {
 
 	x := r.VapourFractionPH(pressure, enthalpy)
 
 	return r.SpecificIsobaricHeatCapacityPX(pressure, x)
 }
 
-
-func (r *Region)SpecificIsobaricHeatCapacityPT(pressure float64, temperature float64) float64 {
+func (r *Region) SpecificIsobaricHeatCapacityPT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
-func (r *Region)SpecificIsobaricHeatCapacityPX(pressure float64, vapourFraction float64) float64 {
+func (r *Region) SpecificIsobaricHeatCapacityPX(pressure float64, vapourFraction float64) float64 {
 
 	T := r.SaturationTemperatureP(pressure)
 	var cp []float64
@@ -803,19 +794,18 @@ func (r *Region)SpecificIsobaricHeatCapacityPX(pressure float64, vapourFraction 
 	return valueX(vapourFraction, cp)
 }
 
-func (r *Region)SpecificIsochoricHeatCapacityPH(pressure float64, enthalpy float64) float64 {
+func (r *Region) SpecificIsochoricHeatCapacityPH(pressure float64, enthalpy float64) float64 {
 
 	x := r.VapourFractionPH(pressure, enthalpy)
 
 	return r.SpecificIsochoricHeatCapacityPX(pressure, x)
 }
 
-
-func (r *Region)SpecificIsochoricHeatCapacityPT(pressure float64, temperature float64) float64 {
+func (r *Region) SpecificIsochoricHeatCapacityPT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
-func (r *Region)SpecificIsochoricHeatCapacityPX(pressure float64, vapourFraction float64) float64 {
+func (r *Region) SpecificIsochoricHeatCapacityPX(pressure float64, vapourFraction float64) float64 {
 
 	T := r.SaturationTemperatureP(pressure)
 	var cv []float64
@@ -839,8 +829,7 @@ func (r *Region)SpecificIsochoricHeatCapacityPX(pressure float64, vapourFraction
 	return valueX(vapourFraction, cv)
 }
 
-
-func (r *Region)SpecificVolumeHS(enthalpy float64, entropy float64) float64 {
+func (r *Region) SpecificVolumeHS(enthalpy float64, entropy float64) float64 {
 
 	p := r.PressureHS(enthalpy, entropy)
 	x := r.VapourFractionHS(enthalpy, entropy)
@@ -848,28 +837,25 @@ func (r *Region)SpecificVolumeHS(enthalpy float64, entropy float64) float64 {
 	return r.SpecificVolumePX(p, x)
 }
 
-
-func (r *Region)SpecificVolumePH(pressure float64, enthalpy float64) float64 {
+func (r *Region) SpecificVolumePH(pressure float64, enthalpy float64) float64 {
 
 	x := r.VapourFractionPH(pressure, enthalpy)
 
 	return r.SpecificVolumePX(pressure, x)
 }
 
-
-func (r *Region)SpecificVolumePS(pressure float64, entropy float64) float64 {
+func (r *Region) SpecificVolumePS(pressure float64, entropy float64) float64 {
 
 	x := r.VapourFractionPS(pressure, entropy)
 
 	return r.SpecificVolumePX(pressure, x)
 }
 
-
-func (r *Region)SpecificVolumePT(pressure float64, temperature float64) float64 {
+func (r *Region) SpecificVolumePT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
-func (r *Region)SpecificVolumePX(pressure float64, vapourFraction float64) float64 {
+func (r *Region) SpecificVolumePX(pressure float64, vapourFraction float64) float64 {
 
 	v := specificVolumesP(pressure)
 
@@ -886,7 +872,7 @@ func (r *Region)SpecificVolumePX(pressure float64, vapourFraction float64) float
  * @param pressure absolute pressure [MPa]
  * @return specific volume [m&sup3;/kg]
  */
-func (r *Region)SpecificVolumeSaturatedLiquidP(pressure float64) float64 {
+func (r *Region) SpecificVolumeSaturatedLiquidP(pressure float64) float64 {
 
 	Ts := r.SaturationTemperatureP(pressure)
 
@@ -984,7 +970,7 @@ func (r *Region)SpecificVolumeSaturatedLiquidP(pressure float64) float64 {
  * @param pressure absolute pressure [MPa]
  * @return specific volume [m&sup3;/kg]
  */
-func (r *Region)SpecificVolumeSaturatedVapourP(pressure float64) float64 {
+func (r *Region) SpecificVolumeSaturatedVapourP(pressure float64) float64 {
 
 	Ts := r.SaturationTemperatureP(pressure)
 
@@ -1085,19 +1071,18 @@ func specificVolumesP(pressure float64) []float64 {
 		REGION4.SpecificVolumeSaturatedVapourP(pressure)}
 }
 
-func (r *Region)SpeedOfSoundPH(pressure float64, enthalpy float64) float64 {
+func (r *Region) SpeedOfSoundPH(pressure float64, enthalpy float64) float64 {
 
 	x := r.VapourFractionPH(pressure, enthalpy)
 
 	return r.SpeedOfSoundPX(pressure, x)
 }
 
-
-func(r *Region)SpeedOfSoundPT(pressure float64, temperature float64) float64 {
+func (r *Region) SpeedOfSoundPT(pressure float64, temperature float64) float64 {
 	return math.NaN()
 }
 
-func (r *Region)SpeedOfSoundPX(pressure float64, vapourFraction float64) float64 {
+func (r *Region) SpeedOfSoundPX(pressure float64, vapourFraction float64) float64 {
 
 	T := r.SaturationTemperatureP(pressure)
 	h := specificEnthalpiesP(pressure)
@@ -1127,7 +1112,7 @@ func (r *Region)SpeedOfSoundPX(pressure float64, vapourFraction float64) float64
  * @param temperature temperature [K]
  * @return surface tension [N/m]
  */
-func (r *Region)SurfaceTensionT(temperature float64) float64 {
+func (r *Region) SurfaceTensionT(temperature float64) float64 {
 
 	theta := temperature / constants.Tc
 
@@ -1141,7 +1126,7 @@ func (r *Region)SurfaceTensionT(temperature float64) float64 {
  * @param entropy specific entropy [kJ/(kg K)]
  * @return saturation temperature [K]
  */
-func (r *Region)TemperatureHS(enthalpy float64, entropy float64) float64 {
+func (r *Region) TemperatureHS(enthalpy float64, entropy float64) float64 {
 
 	var theta float64 = 0
 	eta := enthalpy / 2800.0
@@ -1154,13 +1139,11 @@ func (r *Region)TemperatureHS(enthalpy float64, entropy float64) float64 {
 	return theta * 550
 }
 
-
-func (r *Region)TemperaturePH(pressure float64, dummy float64) float64 {
+func (r *Region) TemperaturePH(pressure float64, dummy float64) float64 {
 	return r.SaturationTemperatureP(pressure)
 }
 
-
-func (r *Region)TemperaturePS(pressure float64, dummy float64) float64 {
+func (r *Region) TemperaturePS(pressure float64, dummy float64) float64 {
 	return r.SaturationTemperatureP(pressure)
 }
 
@@ -1181,7 +1164,7 @@ func vapourFraction(value float64, lim []float64) float64 {
  * @param entropy specific entropy [kJ/(kg K)]
  * @return vapour fraction [-]
  */
-func (r *Region)VapourFractionHS(enthalpy float64, entropy float64) float64 {
+func (r *Region) VapourFractionHS(enthalpy float64, entropy float64) float64 {
 
 	Ts := r.TemperatureHS(enthalpy, entropy)
 	ps := r.SaturationPressureT(Ts)
@@ -1197,7 +1180,7 @@ func (r *Region)VapourFractionHS(enthalpy float64, entropy float64) float64 {
 	return vapourFraction(enthalpy, h)
 }
 
-func (r *Region)VapourFractionPH(pressure float64, enthalpy float64) float64 {
+func (r *Region) VapourFractionPH(pressure float64, enthalpy float64) float64 {
 
 	if pressure > constants.Pc {
 		return math.NaN()
@@ -1207,7 +1190,7 @@ func (r *Region)VapourFractionPH(pressure float64, enthalpy float64) float64 {
 	return vapourFraction(enthalpy, h)
 }
 
-func (r *Region)VapourFractionPS(pressure float64, entropy float64) float64 {
+func (r *Region) VapourFractionPS(pressure float64, entropy float64) float64 {
 
 	if pressure > constants.Pc {
 		return math.NaN()
@@ -1217,7 +1200,7 @@ func (r *Region)VapourFractionPS(pressure float64, entropy float64) float64 {
 	return vapourFraction(entropy, s)
 }
 
-func (r *Region)VapourFractionTS(temperature float64, entropy float64) float64 {
+func (r *Region) VapourFractionTS(temperature float64, entropy float64) float64 {
 
 	ps := r.SaturationPressureT(temperature)
 

@@ -50,16 +50,6 @@ func TestFourthRegion(t *testing.T) {
 			tol: 1e-8,
 		},
 		{
-			name: "testSaturationPressureB34S",
-			f:    saturationPressureB34S,
-			values: [][]float64{
-				{1.687755057e1, 3.8},
-				{2.164451789e1, 4.2},
-				{1.668968482e1, 5.2},
-			},
-			tol: 1e-8,
-		},
-		{
 			name: "testSaturationPressureT",
 			f:    REGION4.SaturationPressureT,
 			values: [][]float64{
@@ -292,5 +282,17 @@ func TestFourthRegion(t *testing.T) {
 			}
 		})
 	}
+	t.Run("testSaturationPressureB34S", func(t *testing.T) {
+		t.Parallel()
+		for _, x := range [][]float64{
+			{1.687755057e1, 3.8},
+			{2.164451789e1, 4.2},
+			{1.668968482e1, 5.2},
+		} {
+			retval, err := saturationPressureB34S(x[1])
+			assert.Equal(t, err, nil)
+			assert.InDelta(t, x[0], retval, 1e-8)
+		}
+	})
 
 }

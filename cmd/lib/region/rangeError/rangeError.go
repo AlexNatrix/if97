@@ -16,129 +16,122 @@ type RangeError struct {
 	UNIT_SYSTEM units.UnitSystem
 }
 
-
-// 	/**
-// 	 * Get exceeded limit.
-// 	 *
-// 	 * @return limit value
-// 	 */
+// /**
+//   - Get exceeded limit.
+//     *
+//   - @return limit value
+//     */
 func (err *RangeError) GetLimit() float64 {
 	return err.LIMITS[0]
 }
 
-
-// 	/**
-// 	 * Get exceeded Quantity.
-// 	 *
-// 	 * @return Quantity value
-// 	 */
+// /**
+//   - Get exceeded Quantity.
+//     *
+//   - @return Quantity value
+//     */
 func (err *RangeError) GetQuantity() string {
-		return err.QUANTITIES[0].String();
+	return err.QUANTITIES[0].String()
 }
 
-
-func ConvertFromDefault(quantity []float64, value float64)float64 {
-	return (value - quantity[1]) / quantity[0];
+func ConvertFromDefault(quantity []float64, value float64) float64 {
+	return (value - quantity[1]) / quantity[0]
 }
 
 func ConvertFromDefaultQuantity(unitSystem units.UnitSystem, quantity quantity.Quantity, value float64) (float64, error) {
 
 	switch quantity.NAME {
 	case "temperature":
-		return ConvertFromDefault(unitSystem.TEMPERATURE, value),nil
+		return ConvertFromDefault(unitSystem.TEMPERATURE, value), nil
 
 	case "specific Helmholtz free energy":
 	case "specific Gibbs free energy":
 	case "specific internal energy":
-		return ConvertFromDefault(unitSystem.SPECIFIC_ENERGY, value),nil
+		return ConvertFromDefault(unitSystem.SPECIFIC_ENERGY, value), nil
 
 	case "specific enthalpy":
-		return ConvertFromDefault(unitSystem.SPECIFIC_ENTHALPY, value),nil
+		return ConvertFromDefault(unitSystem.SPECIFIC_ENTHALPY, value), nil
 
 	case "thermal conductivity":
-		return ConvertFromDefault(unitSystem.THERMAL_CONDUCTIVITY, value),nil
+		return ConvertFromDefault(unitSystem.THERMAL_CONDUCTIVITY, value), nil
 
 	case "wavelength":
-		return ConvertFromDefault(unitSystem.WAVELENGTH, value),nil
+		return ConvertFromDefault(unitSystem.WAVELENGTH, value), nil
 
 	case "absolute pressure":
-		return ConvertFromDefault(unitSystem.PRESSURE, value),nil
+		return ConvertFromDefault(unitSystem.PRESSURE, value), nil
 
 	case "density":
-		return ConvertFromDefault(unitSystem.DENSITY, value),nil
+		return ConvertFromDefault(unitSystem.DENSITY, value), nil
 
 	case "specific entropy":
-		return ConvertFromDefault(unitSystem.SPECIFIC_ENTROPY, value),nil
+		return ConvertFromDefault(unitSystem.SPECIFIC_ENTROPY, value), nil
 
 	case "specific volume":
-		return ConvertFromDefault(unitSystem.SPECIFIC_VOLUME, value),nil
+		return ConvertFromDefault(unitSystem.SPECIFIC_VOLUME, value), nil
 
 	case "vapour fraction":
-		return value,nil
+		return value, nil
 
 	}
 	return -1, errors.New("no conversion available for: " + quantity.String())
 }
 
-func  ErrorFromValue(q quantity.Quantity , value float64, limit float64) RangeError{
+func ErrorFromValue(q quantity.Quantity, value float64, limit float64) RangeError {
 	return RangeError{
-		[]quantity.Quantity{q}, 
-		[]float64{value}, 
+		[]quantity.Quantity{q},
+		[]float64{value},
 		[]float64{limit},
 		units.DEFAULT,
-		};
+	}
 }
 
-
-func (re *RangeError) ConvertFromDefault(unitSystem units.UnitSystem ) error {
+func (re *RangeError) ConvertFromDefault(unitSystem units.UnitSystem) error {
 
 	var values []float64
-	var limits  []float64
+	var limits []float64
 	var err error
-for i := 0; i < len(re.QUANTITIES); i++ {
-	values[i],err = ConvertFromDefaultQuantity(unitSystem  , re.QUANTITIES[i], re.VALUES[i]);
-	if err!= nil{
-		return err
+	for i := 0; i < len(re.QUANTITIES); i++ {
+		values[i], err = ConvertFromDefaultQuantity(unitSystem, re.QUANTITIES[i], re.VALUES[i])
+		if err != nil {
+			return err
+		}
+		limits[i], err = ConvertFromDefaultQuantity(unitSystem, re.QUANTITIES[i], re.LIMITS[i])
+		if err != nil {
+			return err
+		}
 	}
-	limits[i], err = ConvertFromDefaultQuantity(unitSystem  , re.QUANTITIES[i], re.LIMITS[i]);
-	if err!= nil{
-		return err
-	}
+	return RangeError{re.QUANTITIES, values, limits, unitSystem}
 }
-return RangeError{re.QUANTITIES, values, limits, unitSystem}
-}	 
 
+func (err RangeError) Error() string {
 
-func (err RangeError)  Error() string{
+	out := ""
 
-	out := "";
+	for i := 0; i < len(err.QUANTITIES); i++ {
+		quantity := err.QUANTITIES[i].String()
+		unit := units.GetUnit(err.QUANTITIES[i])
+		message := "higher"
+		if err.VALUES[i] > err.LIMITS[i] {
+			message = "lower"
+		}
+		switch i {
+		case 0:
 
-   for i := 0; i < len(err.QUANTITIES); i++ {
-			quantity :=err.QUANTITIES[i].String()
-			   unit := units.GetUnit(err.QUANTITIES[i]);
-			   message := "higher"
-			   if err.VALUES[i] > err.LIMITS[i]{
-				   message = "lower"
-			   }
-	   switch (i) {
-		   case 0:
-			   
-			   quantity = strings.ToUpper(quantity[:1])+ quantity[:1];
+			quantity = strings.ToUpper(quantity[:1]) + quantity[:1]
 
-			   out += fmt.Sprintf("%s value %g %s should be %s than %g %s",
-			   quantity, err.VALUES[i], unit, message, err.LIMITS[i], unit);
+			out += fmt.Sprintf("%s value %g %s should be %s than %g %s",
+				quantity, err.VALUES[i], unit, message, err.LIMITS[i], unit)
 
+		default:
+			out += fmt.Sprintf(", when %s value %g %s is %s than %g %s",
+				quantity, err.VALUES[i], unit, message, err.LIMITS[i], unit)
+		}
+	}
+	out += "."
 
-		   default:
-			   out += fmt.Sprintf(", when %s value %g %s is %s than %g %s",
-					   quantity, err.VALUES[i], unit, message, err.LIMITS[i], unit);
-	   }
-   }
-   out += ".";
-
-   return out;
-}		
-
+	return out
+}
 
 // 	OutOfRangeException(IF97.Quantity[] quantities, double[] values, double[] limits, IF97.UnitSystem unitSystem) {
 
@@ -156,5 +149,3 @@ func (err RangeError)  Error() string{
 // 		LIMITS = limits.clone();
 // 		UNIT_SYSTEM = unitSystem;
 // 	}
-
-
