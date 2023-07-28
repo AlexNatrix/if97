@@ -6,7 +6,7 @@ import (
 	"if97.com/cmd/lib/fifthRegion"
 	"if97.com/cmd/lib/firstRegion"
 	"if97.com/cmd/lib/fourthRegion"
-	"if97.com/cmd/lib/region/rangeError"
+	rangeError "if97.com/cmd/lib/region/range_error"
 	"if97.com/cmd/lib/secondRegion"
 	"if97.com/cmd/lib/thirdRegion"
 	"if97.com/cmd/lib/utils/constants"

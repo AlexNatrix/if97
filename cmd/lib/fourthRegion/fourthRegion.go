@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"if97.com/cmd/lib/firstRegion"
-	rangeError "if97.com/cmd/lib/region/RangeError"
+	rangeError "if97.com/cmd/lib/region/range_error"
 	"if97.com/cmd/lib/secondRegion"
 	"if97.com/cmd/lib/thirdRegion"
 

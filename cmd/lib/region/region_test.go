@@ -17,86 +17,83 @@ func TestRegion(t *testing.T) {
 		tol    float64
 	}{
 		{
-		name  :"testPressureB23",
-		f  :    pressureB23,
-		values: [][]float64{{0.1652916425e2, 0.623150000e3}},
-		tol:    1e-8,
-		},
-		{
-		name  :"testSaturationPressure3",
-		f  :    saturationPressure3,
-		values: [][]float64{
-			{1.687755057e1, 3.8},
-            {2.164451789e1, 4.2},
-            {1.668968482e1, 5.2},},
+			name:   "testPressureB23",
+			f:      pressureB23,
+			values: [][]float64{{0.1652916425e2, 0.623150000e3}},
 			tol:    1e-8,
-		},	
-		{
-		name  :"testSpecificEnthalpy",
-		f  :    specificEnthalpy1,
-		values: [][]float64{
-			{3.085509647e2, 1.0},
-			{7.006304472e2, 2.0},
-			{1.198359754e3, 3.0}},
-		tol:    1e-6,
 		},
 		{
-		name  :"testSpecificEnthalpy2ab",
-		f  :    specificEnthalpy2ab,
-		values: [][]float64{
-			{2.723729985e3, 7.0},
-			{2.599047210e3, 8.0},
-			{2.511861477e3, 9.0}},
-		tol:    1e-6,
+			name: "testSaturationPressure3",
+			f:    saturationPressure3,
+			values: [][]float64{
+				{1.687755057e1, 3.8},
+				{2.164451789e1, 4.2},
+				{1.668968482e1, 5.2}},
+			tol: 1e-8,
 		},
 		{
-		name  :"testSpecificEnthalpy2ab",
-		f  :    specificEnthalpy2ab,
-		values: [][]float64{
-			{2.723729985e3, 7.0},
-			{2.599047210e3, 8.0},
-			{2.511861477e3, 9.0}},
-			tol:    1e-6,
+			name: "testSpecificEnthalpy",
+			f:    specificEnthalpy1,
+			values: [][]float64{
+				{3.085509647e2, 1.0},
+				{7.006304472e2, 2.0},
+				{1.198359754e3, 3.0}},
+			tol: 1e-6,
 		},
 		{
-		name  :"testSpecificEnthalpy2c3b",
-		f  :    specificEnthalpy2c3b,
-		values: [][]float64{ 
-			{2.687693850e3, 5.5},
-			{2.451623609e3, 5.0},
-			{2.144360448e3, 4.5}},
-		tol:    1e-6,
+			name: "testSpecificEnthalpy2ab",
+			f:    specificEnthalpy2ab,
+			values: [][]float64{
+				{2.723729985e3, 7.0},
+				{2.599047210e3, 8.0},
+				{2.511861477e3, 9.0}},
+			tol: 1e-6,
 		},
 		{
-		name  :"testSpecificEnthalpy3a",
-		f  :    specificEnthalpy3a,
-		values: [][]float64{
-			{1.685025565e3, 3.8},
-			{1.816891476e3, 4.0},
-			{1.949352563e3, 4.2}},
-		tol:    1e-6,
+			name: "testSpecificEnthalpy2ab",
+			f:    specificEnthalpy2ab,
+			values: [][]float64{
+				{2.723729985e3, 7.0},
+				{2.599047210e3, 8.0},
+				{2.511861477e3, 9.0}},
+			tol: 1e-6,
 		},
 		{
-		name  :"testSpecificEnthalpyB13",
-		f  :    specificEnthalpyB13,
-		values: [][]float64{
-			{1.632525047e3, 3.7},
-			{1.593027214e3, 3.6},
-			{1.566104611e3, 3.5}},
-		tol:    1e-6,
+			name: "testSpecificEnthalpy2c3b",
+			f:    specificEnthalpy2c3b,
+			values: [][]float64{
+				{2.687693850e3, 5.5},
+				{2.451623609e3, 5.0},
+				{2.144360448e3, 4.5}},
+			tol: 1e-6,
 		},
 		{
-		name  :"testTemperatureB23P",
-		f  :    temperatureB23P,
-		values: [][]float64{
-			{0.623150000e3, 0.1652916425e2}},
-		tol:    1e-7,
+			name: "testSpecificEnthalpy3a",
+			f:    specificEnthalpy3a,
+			values: [][]float64{
+				{1.685025565e3, 3.8},
+				{1.816891476e3, 4.0},
+				{1.949352563e3, 4.2}},
+			tol: 1e-6,
 		},
-
-			
-		
+		{
+			name: "testSpecificEnthalpyB13",
+			f:    specificEnthalpyB13,
+			values: [][]float64{
+				{1.632525047e3, 3.7},
+				{1.593027214e3, 3.6},
+				{1.566104611e3, 3.5}},
+			tol: 1e-6,
+		},
+		{
+			name: "testTemperatureB23P",
+			f:    temperatureB23P,
+			values: [][]float64{
+				{0.623150000e3, 0.1652916425e2}},
+			tol: 1e-7,
+		},
 	}
-		for _, tc := range cases {
+	for _, tc := range cases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -106,40 +103,35 @@ func TestRegion(t *testing.T) {
 		})
 	}
 
-
-
-
-	var IF97test = IF97Region{"",&firstRegion.REGION1}
-	selectCases:= []struct {
-		name   string
-		f      func(pressure float64, temperature float64) (int,error)
-		args [][]float64
-		expected  []int
-		tol    float64
+	var IF97test = IF97Region{"", &firstRegion.REGION1}
+	selectCases := []struct {
+		name     string
+		f        func(pressure float64, temperature float64) (int, error)
+		args     [][]float64
+		expected []int
+		tol      float64
 	}{
 		{
-			name:"testRegionHS",
-		f  :    IF97test.GetRegionHS,
-		args: [][]float64{
-			{1200, 3},
-			{3000, 7},
-			{1900, 4},
-			{1000, 3},
-		},
-		expected:  []int{1, 2, 3, 4},
-
+			name: "testRegionHS",
+			f:    IF97test.GetRegionHS,
+			args: [][]float64{
+				{1200, 3},
+				{3000, 7},
+				{1900, 4},
+				{1000, 3},
+			},
+			expected: []int{1, 2, 3, 4},
 		},
 		{
-			name:"testRegionPH",
-		f  :    IF97test.GetRegionPH,
-		args: [][]float64{
-			{10, 1000},
-            {10, 3000},
-            {25, 2000},
-            {10, 2000},
-		},
-		expected:  []int{ 1, 2, 3, 4},
-
+			name: "testRegionPH",
+			f:    IF97test.GetRegionPH,
+			args: [][]float64{
+				{10, 1000},
+				{10, 3000},
+				{25, 2000},
+				{10, 2000},
+			},
+			expected: []int{1, 2, 3, 4},
 		},
 	}
 	for _, tc := range selectCases {
@@ -147,15 +139,13 @@ func TestRegion(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			for i, x := range tc.args {
-				region,err := tc.f(x[0],x[1]);
-				if err != nil{
-					fmt.Printf("FAIL TEST %s/n",tc.name)
+				region, err := tc.f(x[0], x[1])
+				if err != nil {
+					fmt.Printf("FAIL TEST %s/n", tc.name)
 				}
 				assert.Equal(t, tc.expected[i], region)
 			}
 		})
-
-
 
 	}
 	t.Run("testTemperatureB23HS", func(t *testing.T) {
@@ -164,25 +154,27 @@ func TestRegion(t *testing.T) {
 			{7.135259364e2, 2600, 5.1},
 			{7.685345532e2, 2700, 5.15},
 			{8.176202120e2, 2800, 5.2},
-		}{ 
-		assert.InDelta(t,x[0], temperatureB23HS(x[1], x[2]), 1e-7);
-	}})
-
+		} {
+			assert.InDelta(t, x[0], temperatureB23HS(x[1], x[2]), 1e-7)
+		}
+	})
 
 	t.Run("MaintestRegion", func(t *testing.T) {
 		t.Parallel()
 		for _, x := range [][]float64{
-					{0.417301218e1 / 0.412120160e1, 3, 300}, // region 1
-					{0.401008987e1 / 0.391736606e1, 80, 300},
-					{0.465580682e1 / 0.322139223e1, 3, 500},
-					{0.191300162e1 / 0.144132662e1, 0.0035, 300}, // region 2
-					{0.208141274e1 / 0.161978333e1, 0.0035, 700},
-					{0.103505092e2 / 0.297553837e1, 30, 700},
-					{0.261609445e1 / 0.215337784e1, 0.5, 1500}, // region 5
-					{0.272724317e1 / 0.219274829e1, 30, 1500},
-					{0.288569882e1 / 0.239589436e1, 30, 2000},
-				}{
-			
-		assert.InDelta(t,x[0], IF97test.IsothermalCompressibilityPT(x[1], x[2]), 1e-8);
-	}})
+			{0.417301218e1 / 0.412120160e1, 3, 300}, // region 1
+			{0.401008987e1 / 0.391736606e1, 80, 300},
+			{0.465580682e1 / 0.322139223e1, 3, 500},
+			{0.191300162e1 / 0.144132662e1, 0.0035, 300}, // region 2
+			{0.208141274e1 / 0.161978333e1, 0.0035, 700},
+			{0.103505092e2 / 0.297553837e1, 30, 700},
+			{0.261609445e1 / 0.215337784e1, 0.5, 1500}, // region 5
+			{0.272724317e1 / 0.219274829e1, 30, 1500},
+			{0.288569882e1 / 0.239589436e1, 30, 2000},
+		} {
+			_, err := IF97test.GetRegionPT(x[1], x[2])
+			assert.Equal(t, nil, err)
+			assert.InDelta(t, x[0], IF97test.HeatCapacityRatioPT(x[1], x[2]), 1e-8)
+		}
+	})
 }

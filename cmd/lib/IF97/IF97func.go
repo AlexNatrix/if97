@@ -2,7 +2,7 @@ package IF97
 
 import (
 	"if97.com/cmd/lib/fourthRegion"
-	"if97.com/cmd/lib/region/rangeError"
+	rangeError "if97.com/cmd/lib/region/range_error"
 	"if97.com/cmd/lib/utils/constants"
 	"if97.com/cmd/lib/utils/quantity"
 )
@@ -506,18 +506,14 @@ func (if97 *IF97) DynamicViscosityRhoT(density float64, temperature float64) (fl
 	return if97.ConvertFromDefault(if97.UnitSystem.DYNAMIC_VISCOSITY, eta), err
 }
 
-//     public String getRegionPT(pressure float64, temperature float64) (float64, error) {
+// UTILITY
+func (if97 *IF97) getRegionPT(pressure float64, temperature float64) (int, error) {
 
-//         double p = IF97.convertToDefault(UNIT_SYSTEM.PRESSURE, pressure),
-//                 T = IF97.convertToDefault(UNIT_SYSTEM.TEMPERATURE, temperature);
+	p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+	T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
 
-//         try {
-//             return Region.region.GetRegionPT(p, T).getName();
-
-//         } catch (OutOfRangeException e) {
-//             throw e.convertFromDefault(UNIT_SYSTEM);
-//         }
-//     }
+	return if97.region.GetRegionPT(p, T)
+}
 
 /**
  * Heat capacity ratio as a function of specific enthalpy &amp; specific
@@ -1093,6 +1089,11 @@ func (if97 *IF97) IsochoricHeatCapacityPT(pressure float64, temperature float64)
 	T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
 	var cv float64
 
+	_, err := if97.region.GetRegionPT(p, T)
+	if err != nil {
+		return -1, err
+	}
+
 	cv = if97.region.SpecificIsochoricHeatCapacityPT(p, T)
 
 	return if97.ConvertFromDefault(if97.UnitSystem.SPECIFIC_HEAT_CAPACITY, cv), err
@@ -1387,7 +1388,7 @@ func (if97 *IF97) RefractiveIndexPTLambda(pressure float64, temperature float64,
  * @return refractive index [-]
  * @throws OutOfRangeException out-of-range exception
  */
-func (if97 *IF97) refractiveIndexRhoTLambda(density float64, temperature float64, wavelength float64) (float64, error) {
+func (if97 *IF97) RefractiveIndexRhoTLambda(density float64, temperature float64, wavelength float64) (float64, error) {
 
 	rho := if97.ConvertToDefault(if97.UnitSystem.DENSITY, density)
 	T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
@@ -1529,7 +1530,7 @@ func (if97 *IF97) SpecificEnthalpyPT(pressure float64, temperature float64) (flo
 	T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
 	var h float64
 
-	_, err := if97.region.GetRegionPS(p, T)
+	_, err := if97.region.GetRegionPT(p, T)
 	if err != nil {
 		return -1, err
 	}
@@ -1592,7 +1593,7 @@ func (if97 *IF97) SpecificEnthalpySaturatedLiquidP(pressure float64) (float64, e
  * @throws OutOfRangeException out-of-range exception
  * @see #specificEnthalpyTX(double, double)
  */
-func (if97 *IF97) specificEnthalpySaturatedLiquidT(temperature float64) (float64, error) {
+func (if97 *IF97) SpecificEnthalpySaturatedLiquidT(temperature float64) (float64, error) {
 
 	T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
 	var h float64
@@ -2070,7 +2071,7 @@ func (if97 *IF97) SpecificInternalEnergySaturatedLiquidP(pressure float64) (floa
  * @throws OutOfRangeException out-of-range exception
  * @see #specificInternalEnergyTX(double, double)
  */
-func (if97 *IF97) SecificInternalEnergySaturatedLiquidT(temperature float64) (float64, error) {
+func (if97 *IF97) SpecificInternalEnergySaturatedLiquidT(temperature float64) (float64, error) {
 
 	T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
 	var s float64
@@ -2306,7 +2307,7 @@ func (if97 *IF97) SpecificVolumeSaturatedLiquidP(pressure float64) (float64, err
  * @return specific volume
  * @throws OutOfRangeException out-of-range exception
  */
-func (if97 *IF97) specificVolumeSaturatedLiquidT(temperature float64) (float64, error) {
+func (if97 *IF97) SpecificVolumeSaturatedLiquidT(temperature float64) (float64, error) {
 
 	T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
 	var v float64
@@ -2436,7 +2437,7 @@ func (if97 *IF97) SpeedOfSoundPH(pressure float64, enthalpy float64) (float64, e
 	h := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, enthalpy)
 	var w float64
 
-	_, err := if97.region.GetRegionPH(p, h)
+	reg, err := if97.region.GetRegionPH(p, h)
 	if err != nil {
 		return -1, err
 	}
@@ -2732,6 +2733,20 @@ func (if97 *IF97) ThermalConductivityRhoT(density float64, temperature float64) 
 
 	rho := if97.ConvertToDefault(if97.UnitSystem.DENSITY, density)
 	T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
+	var err error
+	if T < constants.T0 {
+		return -1, rangeError.ErrorFromValue(quantity.T, T, constants.T0)
+
+	} else if T > constants.T5 {
+		return -1, rangeError.ErrorFromValue(quantity.T, T, constants.T5)
+
+	} else if rho <= 0 {
+		return -1, rangeError.ErrorFromValue(quantity.Rho, rho, constants.T5)
+
+	} else if rho > 1060 {
+		return -1, rangeError.ErrorFromValue(quantity.Rho, rho, 1060)
+
+	}
 
 	var lambda float64
 
@@ -2860,6 +2875,12 @@ func (if97 *IF97) VapourFractionHS(enthalpy float64, entropy float64) (float64, 
 	h := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, enthalpy)
 	s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
 
+	err := fourthRegion.CheckHS(h, s)
+
+	if err != nil {
+		return -1, err
+	}
+
 	return fourthRegion.REGION4.VapourFractionHS(h, s), err
 
 }
@@ -2877,7 +2898,15 @@ func (if97 *IF97) VapourFractionPH(pressure float64, enthalpy float64) (float64,
 
 	p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
 	h := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, enthalpy)
-
+	err := fourthRegion.CheckP(p)
+	if err != nil {
+		return -1, err
+	}
+	T := fourthRegion.REGION4.SaturationTemperatureP(p)
+	err = fourthRegion.CheckT(T)
+	if err != nil {
+		return -1, err
+	}
 	return fourthRegion.REGION4.VapourFractionPH(p, h), err
 }
 
@@ -2894,6 +2923,11 @@ func (if97 *IF97) VapourFractionPS(pressure float64, entropy float64) (float64, 
 
 	p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
 	s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
+
+	_, err := if97.region.GetRegionPS(p, s)
+	if err != nil {
+		return -1, err
+	}
 
 	return fourthRegion.REGION4.VapourFractionPS(p, s), err
 }
@@ -2913,6 +2947,17 @@ func (if97 *IF97) VapourFractionTS(temperature float64, entropy float64) (float6
 
 	T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
 	s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
+
+	err := fourthRegion.CheckT(T)
+	if err != nil {
+		return -1, err
+	}
+	ps := fourthRegion.REGION4.SaturationPressureT(T)
+
+	err = fourthRegion.CheckP(ps)
+	if err != nil {
+		return -1, err
+	}
 
 	return fourthRegion.REGION4.VapourFractionTS(T, s), err
 

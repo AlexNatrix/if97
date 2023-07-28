@@ -1,7 +1,6 @@
 package IF97
 
 import (
-	"if97.com/cmd/lib/utils/quantity"
 	"if97.com/cmd/lib/utils/units"
 )
 
@@ -320,7 +319,7 @@ type IF97calc interface {
 	 *
 	 * @return unit system
 	 */
-	getUnitSystem() units.UnitSystem
+	GetUnitSystem() units.UnitSystem
 	/**
 	 * Heat capacity ratio as a function of specific enthalpy &amp; specific
 	 * entropy.
@@ -454,7 +453,7 @@ type IF97calc interface {
 	 * @throws OutOfRangeException out-of-range exception
 	 * @see #isobaricCubicExpansionCoefficientPH(double, double)
 	 */
-	IsobaricCubicExpansionCoefficientPX(pressure float64, vapourFraction float64)
+	IsobaricCubicExpansionCoefficientPX(pressure float64, vapourFraction float64) (float64, error)
 	/**
 	 * Isobaric cubic expansion coefficient as a function of temperature &amp;
 	 * vapour fraction.
@@ -465,7 +464,7 @@ type IF97calc interface {
 	 * @throws OutOfRangeException out-of-range exception
 	 * @see #isobaricCubicExpansionCoefficientPH(double, double)
 	 */
-	IsobaricCubicExpansionCoefficientTX(temperature float64, vapourFraction float64)
+	IsobaricCubicExpansionCoefficientTX(temperature float64, vapourFraction float64) (float64, error)
 	/**
 	 * Specific isobaric heat capacity as a function of specific enthalpy &amp;
 	 * specific entropy.
@@ -622,7 +621,7 @@ type IF97calc interface {
 	 * @throws OutOfRangeException out-of-range exception
 	 * @see Quantity#getPartialDerivatives()
 	 */
-	PartialDerivativePH(pressure float64, enthalpy float64, x quantity.Quantity, y quantity.Quantity, z quantity.Quantity) (float64, error)
+	//PartialDerivativePH(pressure float64, enthalpy float64, x quantity.Quantity, y quantity.Quantity, z quantity.Quantity) (float64, error)
 	/**
 	 * Gets the partial derivative of z with respect to x for constant y in SI
 	 * units, as a function of pressure and temperature.
@@ -649,7 +648,7 @@ type IF97calc interface {
 	 * @see Quantity#getPartialDerivatives()
 	 * @see #partialDerivativePH(double, double,
 	 */
-	PartialDerivativePT(pressure float64, temperature float64, x quantity.Quantity, y quantity.Quantity, z quantity.Quantity) (float64, error)
+	//PartialDerivativePT(pressure float64, temperature float64, x quantity.Quantity, y quantity.Quantity, z quantity.Quantity) (float64, error)
 	/**
 	 * Gets the partial derivative of z with respect to x for constant y in SI
 	 * units, as a function of density and temperature, valid in region 3 only!
@@ -676,7 +675,7 @@ type IF97calc interface {
 	 * com.hummeling.if97.IF97.Quantity, com.hummeling.if97.IF97.Quantity,
 	 * com.hummeling.if97.IF97.Quantity)
 	 */
-	PartialDerivativeRhoT(density float64, temperature float64, x quantity.Quantity, y quantity.Quantity, z quantity.Quantity) (float64, error)
+	//PartialDerivativeRhoT(density float64, temperature float64, x quantity.Quantity, y quantity.Quantity, z quantity.Quantity) (float64, error)
 
 	/**
 	 * Pressure as a function of specific enthalpy &amp; specific entropy.
@@ -783,7 +782,7 @@ type IF97calc interface {
 	 *
 	 * @param unitSystem unit system
 	 */
-	setUnitSystem(unitSystem units.UnitSystem)
+	SetUnitSystem(unitSystem units.UnitSystem)
 	/**
 	 * Specific enthalpy as a function of pressure &amp; specific entropy.
 	 *
@@ -909,7 +908,7 @@ type IF97calc interface {
 	 * @throws OutOfRangeException out-of-range exception
 	 * @see #specificEntropyPX(double, double)
 	 */
-	SpecificEntropySaturatedVapour(pressure float64) (float64, error)
+	SpecificEntropySaturatedVapourP(pressure float64) (float64, error)
 	/**
 	 * Specific entropy as a function of temperature for saturated vapour.
 	 *

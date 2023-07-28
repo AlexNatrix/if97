@@ -38,6 +38,8 @@ const (
 	Lbf = Lb * G
 	Psi = 1e-6 * Lbf / InSquare // pounds per square inch [MPa]
 
+	T5 = T0 + 2000 //region 5 upper bound
+
 	Ra   = 5.0 / 9.0 // Rankine [K]
 	T13  = T0 + 350
 	S2bc = 5.85

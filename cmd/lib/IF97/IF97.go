@@ -7,7 +7,7 @@ import (
 	"if97.com/cmd/lib/firstRegion"
 	"if97.com/cmd/lib/fourthRegion"
 	"if97.com/cmd/lib/region"
-	"if97.com/cmd/lib/region/rangeError"
+	rangeError "if97.com/cmd/lib/region/range_error"
 	"if97.com/cmd/lib/thirdRegion"
 	"if97.com/cmd/lib/utils/constants"
 	"if97.com/cmd/lib/utils/quantity"
@@ -33,13 +33,20 @@ var IF97test IF97calc = &IF97{}
 
 func New(unitSystem UNITSYSNUM) IF97 {
 	return IF97{
-		units.UNITSYSTEMS[int(unitSystem)],
-		&region.IF97Region{"", &firstRegion.REGION1},
+		UnitSystem: units.UNITSYSTEMS[int(unitSystem)],
+		region: &region.IF97Region{
+			Name:   "DEFAULT",
+			Region: &firstRegion.REGION1,
+		},
 	}
 }
 
-func (if97 *IF97) SetUnitSystem(unitsysnum UNITSYSNUM) {
-	if97.UnitSystem = units.UNITSYSTEMS[int(unitsysnum)]
+func (if97 *IF97) SetUnitSystem(unitsys units.UnitSystem) {
+	if97.UnitSystem = unitsys
+}
+
+func (if97 *IF97) GetUnitSystem() units.UnitSystem {
+	return if97.UnitSystem
 }
 
 func (if97 *IF97) ConvertToDefault(quantity []float64, value float64) float64 {
@@ -92,7 +99,47 @@ func (if97 *IF97) ConvertFromDefaultQuantity(unitSystem units.UnitSystem, quanti
 /**
  * Prandtl number.
  *
- * @param p pressure [MPa]
+ * @param pressure absolute pressure
+ * @param entropy specific entropy
+ * @return Prandtl number
+ * @throws OutOfRangeException out-of-range exception
+ */
+func (if97 *IF97) PrandtlPS(pressure, entropy float64) (float64, error) {
+
+	p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+	s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
+
+	_, err := if97.region.GetRegionPS(p, s)
+	if err != nil {
+		return -1, err
+	}
+	T := if97.region.TemperaturePS(p, s)
+
+	return if97.defaultPrandtlPT(p, T)
+
+}
+
+/**
+ * Prandtl number.
+ *
+ * @param pressure absolute pressure
+ * @param temperature temperature
+ * @return Prandtl number
+ * @throws OutOfRangeException out-of-range exception
+ */
+func (if97 *IF97) PrandtlPT(pressure, temperature float64) (float64, error) {
+
+	p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
+	T := if97.ConvertToDefault(if97.UnitSystem.TEMPERATURE, temperature)
+
+	return if97.defaultPrandtlPT(p, T)
+
+}
+
+/**
+ * Prandtl number.
+ *
+ * @param h specific enthalpy [kJ/kg]
  * @param specific entropy [kJ/K-kg]
  * @return Prandtl number [-]
  * @return  RangeError
@@ -103,14 +150,14 @@ func (if97 *IF97) PrandtlHS(enthalpy float64, entropy float64) (float64, error) 
 	h := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, enthalpy)
 	s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
 
-	_, err := if97.GetRegionHS(h, s)
+	_, err := if97.region.GetRegionHS(h, s)
 	if err != nil {
 		return -1, err
 	}
-	p := if97.Region.PressureHS(h, s)
-	T := if97.Region.TemperatureHS(h, s)
+	p := if97.region.PressureHS(h, s)
+	T := if97.region.TemperatureHS(h, s)
 
-	return if97.calcPrandtlPT(p, T)
+	return if97.defaultPrandtlPT(p, T)
 }
 
 /**
@@ -126,52 +173,57 @@ func (if97 *IF97) PrandtlPH(pressure float64, enthalpy float64) (float64, error)
 	p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
 	h := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, enthalpy)
 
-	return if97.calcPrandtlPH(p, h)
+	return if97.defaultPrandtlPH(p, h)
 }
 
 // helper function
-func (if97 *IF97) calcPrandtlPH(p float64, h float64) (float64, error) {
-	regNum, err := if97.GetRegionPH(p, h)
+func (if97 *IF97) defaultPrandtlPH(p float64, h float64) (float64, error) {
+	reg, err := if97.region.GetRegionPH(p, h)
 	if err != nil {
 		return -1, err
-	}
-	reg := region.IF97Region{
-		Name:   region.Select[regNum].GetName(),
-		Region: region.Select[regNum],
 	}
 
 	var cp float64
 
-	rho := 1 / reg.SpecificVolumePH(p, h)
-	T := reg.TemperaturePH(p, h)
-	eta, _ := if97.DynamicViscosityRhoT(rho, T)
-	lambda := if97.ThermalConductivityRhoT(rho, T) / 1e3
-
-	if reg.Name == "Region4" {
-		cp = fourthRegion.REGION4.SpecificIsobaricHeatCapacityPH(p, h)
-
-	} else {
-		cp = reg.SpecificIsobaricHeatCapacityPT(p, T)
-	}
-	return eta * cp / lambda, nil
-}
-
-// helper function
-func (if97 *IF97) calcPrandtlPT(p float64, T float64) (float64, error) {
-	regNum, err := if97.GetRegionPT(p, T)
+	rho := 1.0 / if97.region.SpecificVolumePH(p, h)
+	T := if97.region.TemperaturePH(p, h)
+	eta, err := if97.DynamicViscosityRhoT(rho, T)
 	if err != nil {
 		return -1, err
 	}
-	reg := region.IF97Region{
-		Name:   region.Select[regNum].GetName(),
-		Region: region.Select[regNum],
+	lambdaDec, err := if97.ThermalConductivityRhoT(rho, T)
+	if err != nil {
+		return -1, err
+	}
+	lambda := lambdaDec / 1e3
+
+	if reg == 4 {
+		cp = fourthRegion.REGION4.SpecificIsobaricHeatCapacityPH(p, h)
+
+	} else {
+		cp = if97.region.SpecificIsobaricHeatCapacityPT(p, T)
+	}
+	return eta * cp / lambda, err
+}
+
+// helper function
+func (if97 *IF97) defaultPrandtlPT(p float64, T float64) (float64, error) {
+	_, err := if97.region.GetRegionPT(p, T)
+	if err != nil {
+		return -1, err
 	}
 
-	rho := 1 / reg.SpecificVolumePT(p, T)
-	eta, _ := if97.DynamicViscosityRhoT(rho, T)
-	cp := reg.SpecificIsobaricHeatCapacityPT(p, T)
-	lambda := if97.ThermalConductivityRhoT(rho, T) / 1e3
-
+	rho := 1.0 / if97.region.SpecificVolumePT(p, T)
+	eta, err := if97.DynamicViscosityRhoT(rho, T)
+	if err != nil {
+		return -1, err
+	}
+	cp := if97.region.SpecificIsobaricHeatCapacityPT(p, T)
+	defaultLambda, err := if97.ThermalConductivityRhoT(rho, T)
+	if err != nil {
+		return -1, err
+	}
+	lambda := defaultLambda / 1e3
 	return eta * cp / lambda, nil
 }
 
@@ -367,7 +419,7 @@ func PartialDerivativeRhoT(rho float64, T float64, x quantity.Quantity, y quanti
 	dy_dT := dy[1]
 	dz_dT := dz[1]
 
-	return (dz_dv*dy_dT - dz_dT*dy_dv) / (dx_dv*dy_dT - dx_dT*dy_dv), nil
+	return (dz_dv*dy_dT - dz_dT*dy_dv) / (dx_dv*dy_dT - dx_dT*dy_dv), err
 }
 
 /**
@@ -504,7 +556,7 @@ func PartialDerivativesVT(v float64, T float64, quantity quantity.Quantity, p fl
  * @return refractive index [-]
  * @return  RangeError
  */
-func (if97 *IF97) defaultRefractiveIndexRhoTLambda(rho float64, T float64, lambdaL float64) (float64, error) {
+func defaultRefractiveIndexRhoTLambda(rho float64, T float64, lambdaL float64) (float64, error) {
 
 	if T < 261.15 {
 		return -1, rangeError.ErrorFromValue(quantity.T, T, 261.15)
@@ -560,7 +612,7 @@ func (if97 *IF97) CompressionFactorPT(pressure float64, temperature float64) (fl
 		return -1, err
 	}
 
-	return 1e3 * p * retval / (constants.R * T), nil
+	return 1e3 * p * retval / (constants.R * T), err
 
 }
 
@@ -622,5 +674,5 @@ func (if97 *IF97) defaultThermalDiffusivityPH(p float64, h float64) (float64, er
 	} else {
 		cp = if97.region.SpecificIsobaricHeatCapacityPT(p, T)
 	}
-	return lambda / rho / cp, nil
+	return lambda / rho / cp, err
 }
