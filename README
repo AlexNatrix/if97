@@ -20,7 +20,7 @@ func main() {
 
 
 Default unit system is  
-[22]string{
+{
     "MPa",
 	"K",
 	"m³/kg",
