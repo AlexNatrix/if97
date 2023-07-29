@@ -1866,12 +1866,11 @@ func (r *Region)SpecificVolumePH(pressure float64, enthalpy float64) float64 {
 }
 
 
-func (r *Region)SpecificVolumePS(pressure float64, entropy float64) float64 {
+func (r *Region)SpecificVolumePS(pressure float64, entropy float64) (float64) {
 
 	var omega float64 = 0
 	var x []float64
 	var IJn [][]float64
-
 	switch getSubRegionS(entropy) {
 	case "R3a":
 		x = []float64{pressure/100 + 0.187, entropy/4.4 - 0.755, 0.0028}
@@ -1882,7 +1881,7 @@ func (r *Region)SpecificVolumePS(pressure float64, entropy float64) float64 {
 		IJn = IJnOb
 
 	default:
-		panic(`"Unsupported subregion for Region 3/n"`)
+		return math.NaN()
 	}
 	for _, ijn := range IJn {
 		omega += ijn[2] * math.Pow(x[0], ijn[0]) * math.Pow(x[1], ijn[1])
@@ -2244,25 +2243,24 @@ func (r *Region)SpeedOfSoundRhoT(density float64, temperature float64) float64 {
 }
 
 
-func (r *Region)TemperatureHS(enthalpy float64, entropy float64) float64 {
+func (r *Region)TemperatureHS(enthalpy float64, entropy float64) (float64) {
 	return r.TemperaturePH(r.PressureHS(enthalpy, entropy), enthalpy)
 }
 
 
-func (r *Region)TemperaturePH(pressure float64, enthalpy float64) float64 {
-
+func (r *Region)TemperaturePH(pressure float64, enthalpy float64) (float64) {
 	switch getSubRegionPH(pressure, enthalpy) {
 	case "R3a":
 		return thetaA(pressure/100, enthalpy/2300) * 760
 	case "R3b":
 		return thetaB(pressure/100, enthalpy/2800) * 860
 	default:
-		panic("Unsupported subregion: TemperaurePh Region 3")
+		return math.NaN()
 	}
 }
 
 
-func (r *Region)TemperaturePS(pressure float64, entropy float64) float64 {
+func (r *Region)TemperaturePS(pressure float64, entropy float64) (float64) {
 
 	var theta float64 = 0
 	var x []float64
@@ -2271,16 +2269,13 @@ func (r *Region)TemperaturePS(pressure float64, entropy float64) float64 {
 	case "R3a":
 		x = []float64{pressure/100 + 0.240, entropy/4.4 - 0.703, 760}
 		IJn = IJnTa
-		break
 
 	case "R3b":
 		x = []float64{pressure/100 + 0.760, entropy/5.3 - 0.818, 860}
 		IJn = IJnTb
-		break
 
 	default:
-		//TODO:FIX this
-		panic("Unsupported subregion: TemperaturePh Region 3")
+		return math.NaN()
 	}
 	for _, ijn := range IJn {
 		theta += ijn[2] * math.Pow(x[0], ijn[0]) * math.Pow(x[1], ijn[1])

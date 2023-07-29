@@ -305,7 +305,7 @@ func (r *Region)SpecificEntropyPT(pressure float64, temperature float64) float64
 
 
 func (r *Region)SpecificEntropyRhoT(rho float64, T float64) float64 {
-	panic("Region1.specificEntropyRhoT() pending implementation. Im sorry")
+	return math.NaN()
 }
 
 

@@ -311,6 +311,35 @@ func TestIF97(t *testing.T) {
 				{8.474332825e2, 100, 5.0}},
 			tol: 1e-5,
 		},
+		{
+			name  : "testDielectricConstantPT",
+			f:if97.DielectricConstantPT,
+			values :[][]float64{
+				{0.785907250e2, 5, 298.15},
+				//meta {0.112620970e1, 10, 873.15},
+				{0.103126058e2, 40, 673.15}},
+			tol:1e-4,
+		},
+	
+		{
+			name  : "testCompressionFactorPT",
+			f:if97.CompressionFactorPT,
+			values :[][]float64{
+				{0.00073, 0.1, 298.15},
+				{0.03636, 5, 298.15},
+				{0.24600, 40, 673.15}},
+			tol:1e-5,
+			},
+
+			{
+				name  : "testDynamicViscosityPT",
+				f:if97.DynamicViscosityPT,
+				values :[][]float64{
+					{0.890022551e-3, .1, 298.15},
+					{0.339743835e-4, 20, 873.15},
+					{0.726093560e-4, 60, 673.15}},
+				tol:1e-12,
+				},
 	}
 	for _, tc := range cases {
 		tc := tc
@@ -326,117 +355,90 @@ func TestIF97(t *testing.T) {
 		})
 	}
 
-	// @Test
-	// public void () {
 
-	//     double[][] X = {
-	//         {0.890022551e-3, .1, 298.15},
-	//         {0.339743835e-4, 20, 873.15},
-	//         {0.726093560e-4, 60, 673.15}};
 
-	//     for (double[] x : X) {
-	//         assertEquals(x[0], if97.dynamicViscosityPT(x[1], x[2]), 1e-12);
-	//     }
-	// }
+	cases1f := []struct {
+		f      func(p float64)  (float64, error)
+		name   string
+		values [][]float64
+		tol    float64
+	}{
+		{
+			f    :  if97.SaturationPressureT,
+			name  : "testSaturationPressureT",
+			values :[][]float64{
+				{0.353658941e-2, 300},
+				{0.263889776e1, 500},
+				{0.123443146e2, 600}},
+			tol  :  1e-7,
+		},
+		{
+			f    :  if97.SaturationTemperatureP,
+			name  : "testSaturationTemperatureP",
+			values :[][]float64{
+				{0.372755919e3, 0.1},
+				{0.453035632e3, 1},
+				{0.584149488e3, 10}},
+			tol  :  1e-6,
+		},
+		{
+			f    :  if97.SurfaceTensionT,
+			name  : "testSurfaceTensionT",
+			values :[][]float64{
+				{0.0716859625, 300},
+				{0.0428914992, 450},
+				{0.00837561087, 600},
+			},
+			tol  :  1e-10,
+		},
+	}
+	for _, tc := range cases1f {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			for _, x := range tc.values {
+				//fmt.Println("_____________________",if97.Region.GetName())
+				retval, err := tc.f(x[1])
+				assert.Equal(t, err, nil)
 
-	// {
-	// 	name  : "testDielectricConstantPT",
-	// 	f:if97.DielectricConstantPT,
-	// 	values :[][]float64{
-	// 		{0.785907250e2, 5, 298.15},
-	// 		//meta {0.112620970e1, 10, 873.15},
-	// 		{0.103126058e2, 40, 673.15}},
-	// 	tol:1e-4,
-	// },
+				assert.InDelta(t, x[0], retval, tc.tol)
+			}
+		})
+	}
 
-	// {
-	// 	name  : "testCompressionFactorPT",
-	// 	f:if97.CompressionFactorPT,
-	// 	values :[][]float64{
-	//         {0.00073, 0.1, 298.15},
-	//         {0.03636, 5, 298.15},
-	//         {0.24600, 40, 673.15}},
-	// 	tol:1e-5,
-	// 	},
-	// {
-	// 	name  : "testRefractiveIndexPTLambda",
-	// 	f:if97.RefractiveIndexPTLambda,
-	// 	values :[][]float64{
-	// 		{0.139277824e1, 0.1, 298.15, 0.2265},
-	// 		{0.133285819e1, 0.1, 298.15, 0.5893},
-	// 		//meta {0.101098988e1, 10, 773.15, 0.2265},
-	// 		//meta {0.100949307e1, 10, 773.15, 0.5893},
-	// 		{0.119757252e1, 40, 673.15, 0.2265},
-	// 		{0.116968699e1, 40, 673.15, 0.5893}},
-	// 	tol:1e-6,
-	// },
 
-	// @Test
-	// public void testSaturationPressureT() {
+	t.Run("testThermalConductivityRhoT", func(t *testing.T) {
+		t.Parallel()
+		for _, x := range [][]float64{
+	        {0.607509806, 0.1, 298.15},
+	        //{0.867570353e-1, 10, 873.15},
+	        {0.398506911, 40, 673.15}} {
+			//fmt.Println("_____________________",if97.Region.GetName())
+			dens,err := if97.DensityPT(x[1], x[2])
+			assert.Equal(t, err, nil)
+			retval, err := if97.ThermalConductivityRhoT(dens,x[2])
+			assert.Equal(t, err, nil)
 
-	//     double[][] X = {
-	//         {0.353658941e-2, 300},
-	//         {0.263889776e1, 500},
-	//         {0.123443146e2, 600}};
+			assert.InDelta(t, x[0], retval, 1e-6)
+		}
+	})
 
-	//     for (double[] x : X) {
-	//         assertEquals(x[0], if97.saturationPressureT(x[1]), 1e-7);
-	//     }
-	// }
+	t.Run("testRefractiveIndexPTLambda", func(t *testing.T) {
+		t.Parallel()
+		for _, x := range [][]float64{
+			{0.139277824e1, 0.1, 298.15, 0.2265},
+			{0.133285819e1, 0.1, 298.15, 0.5893},
+			//meta {0.101098988e1, 10, 773.15, 0.2265},
+			//meta {0.100949307e1, 10, 773.15, 0.5893},
+			{0.119757252e1, 40, 673.15, 0.2265},
+			{0.116968699e1, 40, 673.15, 0.5893}} {
+			//fmt.Println("_____________________",if97.Region.GetName())
 
-	// @Test
-	// public void testSaturationTemperatureP() {
+			retval, err := if97.RefractiveIndexPTLambda(x[1],x[2],x[3])
+			assert.Equal(t, err, nil)
 
-	//     double[][] X = {
-	//         {0.372755919e3, 0.1},
-	//         {0.453035632e3, 1},
-	//         {0.584149488e3, 10}};
-
-	//     for (double[] x : X) {
-	//         assertEquals(x[0], if97.saturationTemperatureP(x[1]), 1e-6);
-	//     }
-	// }
-
-	// @Test
-	// public void testSurfaceTensionT() {
-
-	//     double[][] X = {
-	//         {0.0716859625, 300},
-	//         {0.0428914992, 450},
-	//         {0.00837561087, 600}
-	//     };
-	//     for (double[] x : X) {
-	//         assertEquals(x[0], if97.surfaceTensionT(x[1]), 1e-10);
-	//     }
-	// }
-
-	// @Test
-	// public void testThermalConductivityRhoT() {
-
-	//     double[][] X = {
-	//         {0.607509806, 0.1, 298.15},
-	//         //{0.867570353e-1, 10, 873.15},
-	//         {0.398506911, 40, 673.15}};
-
-	//     for (double[] x : X) {
-	//         assertEquals(x[0], if97.thermalConductivityRhoT(if97.densityPT(x[1], x[2]), x[2]), 1e-6);
-	//     }
-	// }
-
-	// @Test
-	// public void testUnitSystem() {
-
-	//     assertEquals(4.4482216152605, IF97.lb * IF97.g, 1e-13);
-
-	//     if97.setUnitSystem(IF97.UnitSystem.ENGINEERING);
-	//     double Teng = 100; // [Celsius]
-	//     //System.out.format("PsatT(%.1f C): %f bar%n", Teng, if97.saturationPressureT(Teng));
-
-	//     if97.setUnitSystem(IF97.UnitSystem.IMPERIAL);
-	//     double Timp = 212; // [F]
-	//     //System.out.format("PsatT(%.1f F): %f bar%n", Timp, if97.saturationPressureT(Timp) * IF97.psi * 10);
-
-	//     if97.setUnitSystem(IF97.UnitSystem.DEFAULT);
-	// }
+			assert.InDelta(t, x[0], retval, 1e-6)
+		}
+	})
 
 }

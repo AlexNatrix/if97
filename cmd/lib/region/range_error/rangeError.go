@@ -133,19 +133,3 @@ func (err RangeError) Error() string {
 	return out
 }
 
-// 	OutOfRangeException(IF97.Quantity[] quantities, double[] values, double[] limits, IF97.UnitSystem unitSystem) {
-
-// 		if (quantities == null || values == null || limits == null) {
-// 			throw new IllegalArgumentException("Arguments shouldn't be null.");
-
-// 		} else if (quantities.length == 0 || values.length == 0 || limits.length == 0) {
-// 			throw new IllegalArgumentException("Argument arrays shouldn't be empty.");
-
-// 		} else if (quantities.length != values.length || values.length != limits.length) {
-// 			throw new IllegalArgumentException("Argument arrays should have equal lengths.");
-// 		}
-// 		QUANTITIES = quantities.clone();
-// 		VALUES = values.clone();
-// 		LIMITS = limits.clone();
-// 		UNIT_SYSTEM = unitSystem;
-// 	}

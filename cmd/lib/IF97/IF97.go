@@ -102,7 +102,7 @@ func (if97 *IF97) ConvertFromDefaultQuantity(unitSystem units.UnitSystem, quanti
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return Prandtl number
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) PrandtlPS(pressure, entropy float64) (float64, error) {
 
@@ -597,7 +597,7 @@ func defaultRefractiveIndexRhoTLambda(rho float64, T float64, lambdaL float64) (
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return compression factor
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) CompressionFactorPT(pressure float64, temperature float64) (float64, error) {
 

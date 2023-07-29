@@ -425,7 +425,7 @@ func SaturationPressureB34H(enthalpy float64) float64 {
  *
  * @param entropy specific entropy [kJ/(kg K)]
  * @return saturation pressure [MPa]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func saturationPressureB34S(entropy float64) (float64, error) {
 
@@ -679,7 +679,7 @@ func (r *Region) SpecificEntropyPX(pressure float64, vapourFraction float64) flo
 }
 
 func (r *Region) SpecificEntropyRhoT(density float64, temperature float64) float64 {
-	panic("Region4.specificEntropyRhoT() pending implementation. Im Sorry")
+	return math.NaN()
 }
 
 func (r *Region) SpecificEntropySaturatedLiquidP(pressure float64) float64 {

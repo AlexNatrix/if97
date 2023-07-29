@@ -394,20 +394,20 @@ func (r *Region)TemperaturePH(pressure float64, enthalpy float64) float64 {
 
 
 func (r *Region)PressureHS(h float64, s float64) float64 {
-	panic("Region5.pressureHS() pending implementation. Im sorry.")
+	return math.NaN()
 }
 
 
 func (r *Region)SpecificEntropyRhoT(rho float64, T float64) float64 {
-	panic("Region5.specificEntropyRhoT() pending implementation. Im sorry.")
+	return math.NaN()
 }
 
 
 func (r *Region)TemperatureHS(h float64, s float64) float64 {
-	panic("Region5.temperatureHS() pending implementation. Im sorry.")
+	return math.NaN()
 }
 
 
 func (r *Region)TemperaturePS(p float64, s float64) float64 {
-	panic("Region5.temperaturePS() pending implementation. Im sorry.")
+	return math.NaN()
 }

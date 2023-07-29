@@ -110,6 +110,7 @@ type Region interface {
 	 * @param rho density [kg/m&sup3;]
 	 * @param T temperature [K]
 	 * @return specific entropy [kJ/kg-K]
+	 * NOT USED MOSTLY UNIMPLEMENTED
 	 */
 	SpecificEntropyRhoT(rho float64, T float64) float64
 
@@ -250,6 +251,14 @@ var IF97reg IF97Region = IF97Region{
 func temperatureB23P(p float64) float64 {
 	return nB23[3] + math.Sqrt((p-nB23[4])/nB23[2])
 }
+
+
+
+
+
+
+
+
 
 /**
  * Auxiliary equation for the boundary between regions 2 and 3. [IF97

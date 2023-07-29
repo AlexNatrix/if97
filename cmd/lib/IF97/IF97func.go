@@ -1,6 +1,9 @@
 package IF97
 
 import (
+	"errors"
+	"math"
+
 	"if97.com/cmd/lib/fourthRegion"
 	rangeError "if97.com/cmd/lib/region/range_error"
 	"if97.com/cmd/lib/utils/constants"
@@ -16,7 +19,7 @@ var p0 = fourthRegion.REGION4.SaturationPressureT(constants.T0)
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return isothermal compressibility
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) CompressibilityPS(pressure float64, entropy float64) (float64, error) {
 	p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
@@ -35,13 +38,16 @@ func (if97 *IF97) CompressibilityPS(pressure float64, entropy float64) (float64,
 	return if97.ConvertFromDefault(if97.UnitSystem.COMPRESSIBILITY, kappaT), nil
 }
 
+
+
+
 /**
  * Isothermal compressibility as a function of pressure &amp; temperature.
  *
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return isothermal compressibility
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) CompressibilityPT(pressure float64, temperature float64) (float64, error) {
 
@@ -66,7 +72,7 @@ func (if97 *IF97) CompressibilityPT(pressure float64, temperature float64) (floa
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return isothermal compressibility
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) CompressibilityPH(pressure float64, enthalpy float64) (float64, error) {
 	p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
@@ -96,7 +102,7 @@ func (if97 *IF97) CompressibilityPH(pressure float64, enthalpy float64) (float64
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return isothermal compressibility
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) CompressibilityHS(enthalpy float64, entropy float64) (float64, error) {
 
@@ -126,7 +132,7 @@ func (if97 *IF97) CompressibilityHS(enthalpy float64, entropy float64) (float64,
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return density
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificVolumeHS(double, double)
  */
 func (if97 *IF97) DensityHS(enthalpy float64, entropy float64) (float64, error) {
@@ -149,7 +155,7 @@ func (if97 *IF97) DensityHS(enthalpy float64, entropy float64) (float64, error) 
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return density
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificVolumePH(double, double)
  */
 func (if97 *IF97) DensityPH(pressure float64, enthalpy float64) (float64, error) {
@@ -172,7 +178,7 @@ func (if97 *IF97) DensityPH(pressure float64, enthalpy float64) (float64, error)
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return density
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificVolumePS(double, double)
  */
 func (if97 *IF97) DensityPS(pressure float64, entropy float64) (float64, error) {
@@ -194,7 +200,7 @@ func (if97 *IF97) DensityPS(pressure float64, entropy float64) (float64, error) 
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return density
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificVolumePT(double, double)
  */
 func (if97 *IF97) DensityPT(pressure float64, temperature float64) (float64, error) {
@@ -217,7 +223,7 @@ func (if97 *IF97) DensityPT(pressure float64, temperature float64) (float64, err
  * @param pressure absolute pressure
  * @param vapourFraction vapour fraction
  * @return density
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificVolumePX(double, double)
  */
 func (if97 *IF97) DensityPX(pressure float64, vapourFraction float64) (float64, error) {
@@ -240,7 +246,7 @@ func (if97 *IF97) DensityPX(pressure float64, vapourFraction float64) (float64, 
  * @param temperature temperature
  * @param vapourFraction vapour fraction
  * @return density
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificVolumeTX(double, double)
  */
 func (if97 *IF97) DensityTX(temperature float64, vapourFraction float64) (float64, error) {
@@ -260,7 +266,7 @@ func (if97 *IF97) DensityTX(temperature float64, vapourFraction float64) (float6
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return dielectric constant [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #dielectricConstantRhoT(double, double)
  */
 func (if97 *IF97) DielectricConstantHS(enthalpy float64, entropy float64) (float64, error) {
@@ -284,7 +290,7 @@ func (if97 *IF97) DielectricConstantHS(enthalpy float64, entropy float64) (float
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return dielectric constant [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #dielectricConstantRhoT(double, double)
  */
 func (if97 *IF97) DielectricConstantPH(pressure float64, enthalpy float64) (float64, error) {
@@ -308,7 +314,7 @@ func (if97 *IF97) DielectricConstantPH(pressure float64, enthalpy float64) (floa
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return dielectric constant [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #dielectricConstantRhoT(double, double)
  */
 func (if97 *IF97) DielectricConstantPS(pressure float64, entropy float64) (float64, error) {
@@ -333,7 +339,7 @@ func (if97 *IF97) DielectricConstantPS(pressure float64, entropy float64) (float
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return dielectric constant [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #dielectricConstantRhoT(double, double)
  */
 func (if97 *IF97) DielectricConstantPT(pressure float64, temperature float64) (float64, error) {
@@ -358,7 +364,7 @@ func (if97 *IF97) DielectricConstantPT(pressure float64, temperature float64) (f
  * @param density density
  * @param temperature temperature
  * @return dielectric constant [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) DielectricConstantRhoT(density float64, temperature float64) (float64, error) {
 
@@ -376,7 +382,7 @@ func (if97 *IF97) DielectricConstantRhoT(density float64, temperature float64) (
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return dynamic viscosity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #dynamicViscosityRhoT(double, double)
  */
 func (if97 *IF97) DynamicViscosityHS(enthalpy float64, entropy float64) (float64, error) {
@@ -407,7 +413,7 @@ func (if97 *IF97) DynamicViscosityHS(enthalpy float64, entropy float64) (float64
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return dynamic viscosity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #dynamicViscosityRhoT(double, double)
  */
 func (if97 *IF97) DynamicViscosityPH(pressure float64, enthalpy float64) (float64, error) {
@@ -438,7 +444,7 @@ func (if97 *IF97) DynamicViscosityPH(pressure float64, enthalpy float64) (float6
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return dynamic viscosity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #dynamicViscosityRhoT(double, double)
  */
 func (if97 *IF97) DynamicViscosityPS(pressure float64, entropy float64) (float64, error) {
@@ -466,7 +472,7 @@ func (if97 *IF97) DynamicViscosityPS(pressure float64, entropy float64) (float64
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return dynamic viscosity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #dynamicViscosityRhoT(double, double)
  */
 func (if97 *IF97) DynamicViscosityPT(pressure float64, temperature float64) (float64, error) {
@@ -493,7 +499,7 @@ func (if97 *IF97) DynamicViscosityPT(pressure float64, temperature float64) (flo
  * @param density density
  * @param temperature temperature
  * @return dynamic viscosity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) DynamicViscosityRhoT(density float64, temperature float64) (float64, error) {
 
@@ -522,7 +528,7 @@ func (if97 *IF97) getRegionPT(pressure float64, temperature float64) (int, error
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return heat capacity ratio
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #heatCapacityRatioPT(double, double)
  */
 func (if97 *IF97) HeatCapacityRatioHS(enthalpy float64, entropy float64) (float64, error) {
@@ -546,7 +552,7 @@ func (if97 *IF97) HeatCapacityRatioHS(enthalpy float64, entropy float64) (float6
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return heat capacity ratio
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #heatCapacityRatioPT(double, double)
  */
 func (if97 *IF97) HeatCapacityRatioPH(pressure float64, enthalpy float64) (float64, error) {
@@ -570,7 +576,7 @@ func (if97 *IF97) HeatCapacityRatioPH(pressure float64, enthalpy float64) (float
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return heat capacity ratio
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #heatCapacityRatioPT(double, double)
  */
 func (if97 *IF97) HeatCapacityRatioPS(pressure float64, entropy float64) (float64, error) {
@@ -594,7 +600,7 @@ func (if97 *IF97) HeatCapacityRatioPS(pressure float64, entropy float64) (float6
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return heat capacity ratio
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) HeatCapacityRatioPT(pressure float64, temperature float64) (float64, error) {
 
@@ -616,7 +622,7 @@ func (if97 *IF97) HeatCapacityRatioPT(pressure float64, temperature float64) (fl
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return isentropic exponent
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isentropicExponentPT(double, double)
  */
 func (if97 *IF97) IsentropicExponentHS(enthalpy float64, entropy float64) (float64, error) {
@@ -641,7 +647,7 @@ func (if97 *IF97) IsentropicExponentHS(enthalpy float64, entropy float64) (float
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return isentropic exponent
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isentropicExponentPT(double, double)
  */
 func (if97 *IF97) IsentropicExponentPH(pressure float64, enthalpy float64) (float64, error) {
@@ -665,7 +671,7 @@ func (if97 *IF97) IsentropicExponentPH(pressure float64, enthalpy float64) (floa
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return isentropic exponent
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isentropicExponentPT(double, double)
  */
 func (if97 *IF97) IsentropicExponentPS(pressure float64, entropy float64) (float64, error) {
@@ -690,7 +696,7 @@ func (if97 *IF97) IsentropicExponentPS(pressure float64, entropy float64) (float
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return isentropic exponent
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) IsentropicExponentPT(pressure float64, temperature float64) (float64, error) {
 
@@ -712,7 +718,7 @@ func (if97 *IF97) IsentropicExponentPT(pressure float64, temperature float64) (f
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return isobaric cubic expansion coefficient
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isobaricCubicExpansionCoefficientPT(double, double)
  */
 func (if97 *IF97) IsobaricCubicExpansionCoefficientHS(enthalpy float64, entropy float64) (float64, error) {
@@ -741,7 +747,7 @@ func (if97 *IF97) IsobaricCubicExpansionCoefficientHS(enthalpy float64, entropy 
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return isobaric cubic expansion coefficient
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isobaricCubicExpansionCoefficientPT(double, double)
  */
 func (if97 *IF97) IsobaricCubicExpansionCoefficientPH(pressure float64, enthalpy float64) (float64, error) {
@@ -774,7 +780,7 @@ func (if97 *IF97) IsobaricCubicExpansionCoefficientPH(pressure float64, enthalpy
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return isobaric cubic expansion coefficient
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isobaricCubicExpansionCoefficientPT(double, double)
  */
 func (if97 *IF97) IsobaricCubicExpansionCoefficientPS(pressure float64, entropy float64) (float64, error) {
@@ -802,7 +808,7 @@ func (if97 *IF97) IsobaricCubicExpansionCoefficientPS(pressure float64, entropy 
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return isobaric cubic expansion coefficient
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) IsobaricCubicExpansionCoefficientPT(pressure float64, temperature float64) (float64, error) {
 
@@ -826,7 +832,7 @@ func (if97 *IF97) IsobaricCubicExpansionCoefficientPT(pressure float64, temperat
  * @param pressure absolute pressure
  * @param vapourFraction vapour fraction
  * @return isobaric cubic expansion coefficient
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isobaricCubicExpansionCoefficientPH(double, double)
  */
 func (if97 *IF97) IsobaricCubicExpansionCoefficientPX(pressure float64, vapourFraction float64) (float64, error) {
@@ -851,7 +857,7 @@ func (if97 *IF97) IsobaricCubicExpansionCoefficientPX(pressure float64, vapourFr
  * @param temperature temperature
  * @param vapourFraction vapour fraction
  * @return isobaric cubic expansion coefficient
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isobaricCubicExpansionCoefficientPH(double, double)
  */
 func (if97 *IF97) IsobaricCubicExpansionCoefficientTX(temperature float64, vapourFraction float64) (float64, error) {
@@ -877,7 +883,7 @@ func (if97 *IF97) IsobaricCubicExpansionCoefficientTX(temperature float64, vapou
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return specific isobaric heat capacity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isobaricHeatCapacityPT(double, double)
  */
 func (if97 *IF97) IsobaricHeatCapacityHS(enthalpy float64, entropy float64) (float64, error) {
@@ -906,7 +912,7 @@ func (if97 *IF97) IsobaricHeatCapacityHS(enthalpy float64, entropy float64) (flo
 * @param pressure absolute pressure
 * @param enthalpy specific enthalpy
 * @return specific isobaric heat capacity
-* @throws OutOfRangeException out-of-range exception
+* @return RangeError
  * @see #isobaricHeatCapacityPT(double, double)
 */
 func (if97 *IF97) IsobaricHeatCapacityPH(pressure float64, enthalpy float64) (float64, error) {
@@ -939,7 +945,7 @@ func (if97 *IF97) IsobaricHeatCapacityPH(pressure float64, enthalpy float64) (fl
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return specific isobaric heat capacity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isobaricHeatCapacityPT(double, double)
  */
 func (if97 *IF97) IsobaricHeatCapacityPS(pressure float64, entropy float64) (float64, error) {
@@ -967,7 +973,7 @@ func (if97 *IF97) IsobaricHeatCapacityPS(pressure float64, entropy float64) (flo
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return specific isobaric heat capacity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) IsobaricHeatCapacityPT(pressure float64, temperature float64) (float64, error) {
 
@@ -991,7 +997,7 @@ func (if97 *IF97) IsobaricHeatCapacityPT(pressure float64, temperature float64) 
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return specific isochoric heat capacity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isochoricHeatCapacityPT(double, double)
  */
 func (if97 *IF97) IsochoricHeatCapacityHS(enthalpy float64, entropy float64) (float64, error) {
@@ -1020,7 +1026,7 @@ func (if97 *IF97) IsochoricHeatCapacityHS(enthalpy float64, entropy float64) (fl
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return specific isochoric heat capacity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isochoricHeatCapacityPT(double, double)
  */
 func (if97 *IF97) IsochoricHeatCapacityPH(pressure float64, enthalpy float64) (float64, error) {
@@ -1053,7 +1059,7 @@ func (if97 *IF97) IsochoricHeatCapacityPH(pressure float64, enthalpy float64) (f
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return specific isochoric heat capacity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #isochoricHeatCapacityPT(double, double)
  */
 func (if97 *IF97) IsochoricHeatCapacityPS(pressure float64, entropy float64) (float64, error) {
@@ -1081,7 +1087,7 @@ func (if97 *IF97) IsochoricHeatCapacityPS(pressure float64, entropy float64) (fl
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return specific isochoric heat capacity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) IsochoricHeatCapacityPT(pressure float64, temperature float64) (float64, error) {
 
@@ -1106,7 +1112,7 @@ func (if97 *IF97) IsochoricHeatCapacityPT(pressure float64, temperature float64)
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return kinematic viscosity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #kinematicViscosityRhoT(double, double)
  */
 func (if97 *IF97) KinematicViscosityHS(enthalpy float64, entropy float64) (float64, error) {
@@ -1137,7 +1143,7 @@ func (if97 *IF97) KinematicViscosityHS(enthalpy float64, entropy float64) (float
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return kinematic viscosity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #kinematicViscosityRhoT(double, double)
  */
 func (if97 *IF97) KinematicViscosityPH(pressure float64, enthalpy float64) (float64, error) {
@@ -1169,7 +1175,7 @@ func (if97 *IF97) KinematicViscosityPH(pressure float64, enthalpy float64) (floa
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return kinematic viscosity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #kinematicViscosityRhoT(double, double)
  */
 func (if97 *IF97) KinematicViscosityPS(pressure float64, entropy float64) (float64, error) {
@@ -1201,7 +1207,7 @@ func (if97 *IF97) KinematicViscosityPS(pressure float64, entropy float64) (float
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return kinematic viscosity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #kinematicViscosityRhoT(double, double)
  */
 func (if97 *IF97) KinematicViscosityPT(pressure float64, temperature float64) (float64, error) {
@@ -1231,7 +1237,7 @@ func (if97 *IF97) KinematicViscosityPT(pressure float64, temperature float64) (f
  * @param density density
  * @param temperature temperature
  * @return kinematic viscosity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) KinematicViscosityRhoT(density float64, temperature float64) (float64, error) {
 
@@ -1254,7 +1260,7 @@ func (if97 *IF97) KinematicViscosityRhoT(density float64, temperature float64) (
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return pressure
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) PressureHS(enthalpy float64, entropy float64) (float64, error) {
 
@@ -1262,12 +1268,14 @@ func (if97 *IF97) PressureHS(enthalpy float64, entropy float64) (float64, error)
 	s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
 	var p float64
 
-	_, err := if97.region.GetRegionHS(h, s)
+	reg, err := if97.region.GetRegionHS(h, s)
 	if err != nil {
 		return -1, err
 	}
 	p = if97.region.PressureHS(h, s)
-
+	if reg==5 && math.IsNaN(p){
+		return -1, errors.New("region 5 PressureHS is unimplemented, Im sorry")
+	}
 	return if97.ConvertFromDefault(if97.UnitSystem.PRESSURE, p), err
 }
 
@@ -1279,7 +1287,7 @@ func (if97 *IF97) PressureHS(enthalpy float64, entropy float64) (float64, error)
  * @param entropy specific entropy
  * @param wavelength wavelength
  * @return refractive index [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) RefractiveIndexHSLambda(enthalpy float64, entropy float64, wavelength float64) (float64, error) {
 
@@ -1307,7 +1315,7 @@ func (if97 *IF97) RefractiveIndexHSLambda(enthalpy float64, entropy float64, wav
  * @param enthalpy specific enthalpy
  * @param wavelength wavelength
  * @return refractive index [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) RefractiveIndexPHLambda(pressure float64, enthalpy float64, wavelength float64) (float64, error) {
 
@@ -1335,7 +1343,7 @@ func (if97 *IF97) RefractiveIndexPHLambda(pressure float64, enthalpy float64, wa
  * @param entropy specific entropy
  * @param wavelength wavelength
  * @return refractive index [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) RefractiveIndexPSLambda(pressure float64, entropy float64, wavelength float64) (float64, error) {
 
@@ -1361,7 +1369,7 @@ func (if97 *IF97) RefractiveIndexPSLambda(pressure float64, entropy float64, wav
  * @param temperature temperature
  * @param wavelength wavelength
  * @return refractive index [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) RefractiveIndexPTLambda(pressure float64, temperature float64, wavelength float64) (float64, error) {
 
@@ -1386,7 +1394,7 @@ func (if97 *IF97) RefractiveIndexPTLambda(pressure float64, temperature float64,
  * @param temperature temperature
  * @param waveLength wave length
  * @return refractive index [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) RefractiveIndexRhoTLambda(density float64, temperature float64, wavelength float64) (float64, error) {
 
@@ -1404,7 +1412,7 @@ func (if97 *IF97) RefractiveIndexRhoTLambda(density float64, temperature float64
 //   - @param enthalpy specific enthalpy
 //   - @param entropy specific entropy
 //   - @return saturation pressure
-//   - @throws OutOfRangeException out-of-range exception
+//   - @return RangeError
 //     */
 func (if97 *IF97) SaturationPressureHS(enthalpy float64, entropy float64) (float64, error) {
 
@@ -1430,7 +1438,7 @@ func (if97 *IF97) SaturationPressureHS(enthalpy float64, entropy float64) (float
  *
  * @param temperature saturation temperature
  * @return saturation pressure
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SaturationPressureT(temperature float64) (float64, error) {
 
@@ -1454,7 +1462,7 @@ func (if97 *IF97) SaturationPressureT(temperature float64) (float64, error) {
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return saturation temperature
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SaturationTemperatureHS(enthalpy float64, entropy float64) (float64, error) {
 
@@ -1477,7 +1485,7 @@ func (if97 *IF97) SaturationTemperatureHS(enthalpy float64, entropy float64) (fl
  *
  * @param pressure saturation pressure
  * @return saturation temperature
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SaturationTemperatureP(pressure float64) (float64, error) {
 
@@ -1499,7 +1507,7 @@ func (if97 *IF97) SaturationTemperatureP(pressure float64) (float64, error) {
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return specific enthalpy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificEnthalpyPS(pressure float64, entropy float64) (float64, error) {
 
@@ -1522,7 +1530,7 @@ func (if97 *IF97) SpecificEnthalpyPS(pressure float64, entropy float64) (float64
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return specific enthalpy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificEnthalpyPT(pressure float64, temperature float64) (float64, error) {
 
@@ -1545,7 +1553,7 @@ func (if97 *IF97) SpecificEnthalpyPT(pressure float64, temperature float64) (flo
  * @param pressure absolute pressure
  * @param vapourFraction vapour fraction [-]
  * @return specific enthalpy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificEnthalpyPX(pressure float64, vapourFraction float64) (float64, error) {
 
@@ -1567,7 +1575,7 @@ func (if97 *IF97) SpecificEnthalpyPX(pressure float64, vapourFraction float64) (
  *
  * @param pressure saturation pressure
  * @return specific enthalpy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificEnthalpyPX(double, double)
  */
 func (if97 *IF97) SpecificEnthalpySaturatedLiquidP(pressure float64) (float64, error) {
@@ -1590,7 +1598,7 @@ func (if97 *IF97) SpecificEnthalpySaturatedLiquidP(pressure float64) (float64, e
  *
  * @param temperature saturation temperature
  * @return specific enthalpy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificEnthalpyTX(double, double)
  */
 func (if97 *IF97) SpecificEnthalpySaturatedLiquidT(temperature float64) (float64, error) {
@@ -1615,7 +1623,7 @@ func (if97 *IF97) SpecificEnthalpySaturatedLiquidT(temperature float64) (float64
  *
  * @param pressure saturation pressure
  * @return specific enthalpy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificEnthalpyPX(double, double)
  */
 func (if97 *IF97) SpecificEnthalpySaturatedVapourP(pressure float64) (float64, error) {
@@ -1638,7 +1646,7 @@ func (if97 *IF97) SpecificEnthalpySaturatedVapourP(pressure float64) (float64, e
  *
  * @param temperature saturation temperature
  * @return specific enthalpy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificEnthalpyTX(double, double)
  */
 func (if97 *IF97) SpecificEnthalpySaturatedVapourT(temperature float64) (float64, error) {
@@ -1664,7 +1672,7 @@ func (if97 *IF97) SpecificEnthalpySaturatedVapourT(temperature float64) (float64
  * @param temperature temperature
  * @param vapourFraction vapour fraction [-]
  * @return specific enthalpy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificEnthalpyTX(temperature float64, vapourFraction float64) (float64, error) {
 
@@ -1689,7 +1697,7 @@ func (if97 *IF97) SpecificEnthalpyTX(temperature float64, vapourFraction float64
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return specific entropy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificEntropyPH(pressure float64, enthalpy float64) (float64, error) {
 
@@ -1719,7 +1727,7 @@ func (if97 *IF97) SpecificEntropyPH(pressure float64, enthalpy float64) (float64
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return specific entropy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificEntropyPT(pressure float64, temperature float64) (float64, error) {
 
@@ -1742,7 +1750,7 @@ func (if97 *IF97) SpecificEntropyPT(pressure float64, temperature float64) (floa
  * @param pressure absolute pressure
  * @param vapourFraction vapour fraction [-]
  * @return specific entropy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificEntropyPX(pressure float64, vapourFraction float64) (float64, error) {
 
@@ -1764,7 +1772,7 @@ func (if97 *IF97) SpecificEntropyPX(pressure float64, vapourFraction float64) (f
  *
  * @param pressure saturation pressure
  * @return specific entropy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificEntropyPX(double, double)
  */
 func (if97 *IF97) SpecificEntropySaturatedLiquidP(pressure float64) (float64, error) {
@@ -1787,7 +1795,7 @@ func (if97 *IF97) SpecificEntropySaturatedLiquidP(pressure float64) (float64, er
  *
  * @param temperature saturation temperature
  * @return specific entropy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificEntropyTX(double, double)
  */
 func (if97 *IF97) SpecificEntropySaturatedLiquidT(temperature float64) (float64, error) {
@@ -1812,7 +1820,7 @@ func (if97 *IF97) SpecificEntropySaturatedLiquidT(temperature float64) (float64,
  *
  * @param pressure saturation pressure
  * @return specific entropy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificEntropyPX(double, double)
  */
 func (if97 *IF97) SpecificEntropySaturatedVapourP(pressure float64) (float64, error) {
@@ -1835,7 +1843,7 @@ func (if97 *IF97) SpecificEntropySaturatedVapourP(pressure float64) (float64, er
  *
  * @param temperature saturation temperature
  * @return specific entropy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificEntropyTX(double, double)
  */
 func (if97 *IF97) SpecificEntropySaturatedVapourT(temperature float64) (float64, error) {
@@ -1861,7 +1869,7 @@ func (if97 *IF97) SpecificEntropySaturatedVapourT(temperature float64) (float64,
  * @param temperature temperature
  * @param vapourFraction vapour fraction [-]
  * @return specific entropy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificEntropyTX(temperature float64, vapourFraction float64) (float64, error) {
 
@@ -1886,7 +1894,7 @@ func (if97 *IF97) SpecificEntropyTX(temperature float64, vapourFraction float64)
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return specific Gibbs free energy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificGibbsFreeEnergyPT(pressure float64, temperature float64) (float64, error) {
 
@@ -1910,7 +1918,7 @@ func (if97 *IF97) SpecificGibbsFreeEnergyPT(pressure float64, temperature float6
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return specific internal energy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificInternalEnergyPT(double, double)
  */
 func (if97 *IF97) SpecificInternalEnergyHS(enthalpy float64, entropy float64) (float64, error) {
@@ -1939,7 +1947,7 @@ func (if97 *IF97) SpecificInternalEnergyHS(enthalpy float64, entropy float64) (f
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return specific internal energy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificInternalEnergyPT(double, double)
  */
 func (if97 *IF97) SpecificInternalEnergyPH(pressure float64, enthalpy float64) (float64, error) {
@@ -1972,7 +1980,7 @@ func (if97 *IF97) SpecificInternalEnergyPH(pressure float64, enthalpy float64) (
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return specific internal energy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificInternalEnergyPT(double, double)
  */
 func (if97 *IF97) SpecificInternalEnergyPS(pressure float64, entropy float64) (float64, error) {
@@ -1999,7 +2007,7 @@ func (if97 *IF97) SpecificInternalEnergyPS(pressure float64, entropy float64) (f
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return specific internal energy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificInternalEnergyPT(pressure float64, temperature float64) (float64, error) {
 
@@ -2022,7 +2030,7 @@ func (if97 *IF97) SpecificInternalEnergyPT(pressure float64, temperature float64
  * @param pressure absolute pressure
  * @param vapourFraction vapour fraction [-]
  * @return specific internal energy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificInternalEnergyPX(pressure float64, vapourFraction float64) (float64, error) {
 
@@ -2044,7 +2052,7 @@ func (if97 *IF97) SpecificInternalEnergyPX(pressure float64, vapourFraction floa
  *
  * @param pressure saturation pressure
  * @return specific internal energy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificInternalEnergyPX(double, double)
  */
 func (if97 *IF97) SpecificInternalEnergySaturatedLiquidP(pressure float64) (float64, error) {
@@ -2068,7 +2076,7 @@ func (if97 *IF97) SpecificInternalEnergySaturatedLiquidP(pressure float64) (floa
  *
  * @param temperature saturation temperature
  * @return specific internal energy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificInternalEnergyTX(double, double)
  */
 func (if97 *IF97) SpecificInternalEnergySaturatedLiquidT(temperature float64) (float64, error) {
@@ -2093,7 +2101,7 @@ func (if97 *IF97) SpecificInternalEnergySaturatedLiquidT(temperature float64) (f
  *
  * @param pressure saturation pressure
  * @return specific internal energy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificInternalEnergyPX(double, double)
  */
 func (if97 *IF97) SpecificInternalEnergySaturatedVapourP(pressure float64) (float64, error) {
@@ -2117,7 +2125,7 @@ func (if97 *IF97) SpecificInternalEnergySaturatedVapourP(pressure float64) (floa
  *
  * @param temperature saturation temperature
  * @return specific internal energy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #specificInternalEnergyTX(double, double)
  */
 func (if97 *IF97) SpecificInternalEnergySaturatedVapourT(temperature float64) (float64, error) {
@@ -2144,7 +2152,7 @@ func (if97 *IF97) SpecificInternalEnergySaturatedVapourT(temperature float64) (f
  * @param temperature temperature
  * @param vapourFraction vapour fraction [-]
  * @return specific internal energy
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificInternalEnergyTX(temperature float64, vapourFraction float64) (float64, error) {
 
@@ -2170,7 +2178,7 @@ func (if97 *IF97) SpecificInternalEnergyTX(temperature float64, vapourFraction f
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return specific volume
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificVolumeHS(enthalpy float64, entropy float64) (float64, error) {
 
@@ -2193,7 +2201,7 @@ func (if97 *IF97) SpecificVolumeHS(enthalpy float64, entropy float64) (float64, 
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return specific volume
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificVolumePH(pressure float64, enthalpy float64) (float64, error) {
 
@@ -2216,19 +2224,21 @@ func (if97 *IF97) SpecificVolumePH(pressure float64, enthalpy float64) (float64,
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return specific volume
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificVolumePS(pressure float64, entropy float64) (float64, error) {
 
 	p := if97.ConvertToDefault(if97.UnitSystem.PRESSURE, pressure)
 	s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
 	var v float64
-	_, err := if97.region.GetRegionPS(p, s)
+	reg, err := if97.region.GetRegionPS(p, s)
 	if err != nil {
 		return -1, err
 	}
 	v = if97.region.SpecificVolumePS(p, s)
-
+	if math.IsNaN(v) && reg ==3 {
+		return -1, errors.New("unsupported subregion in region 3 SpecificVolumePS")
+	}
 	return if97.ConvertFromDefault(if97.UnitSystem.SPECIFIC_VOLUME, v), err
 }
 
@@ -2238,7 +2248,7 @@ func (if97 *IF97) SpecificVolumePS(pressure float64, entropy float64) (float64, 
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return specific volume
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificVolumePT(pressure float64, temperature float64) (float64, error) {
 
@@ -2261,7 +2271,7 @@ func (if97 *IF97) SpecificVolumePT(pressure float64, temperature float64) (float
  * @param pressure absolute pressure
  * @param vapourFraction vapour fraction [-]
  * @return specific volume
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificVolumePX(pressure float64, vapourFraction float64) (float64, error) {
 
@@ -2283,7 +2293,7 @@ func (if97 *IF97) SpecificVolumePX(pressure float64, vapourFraction float64) (fl
  *
  * @param pressure absolute pressure
  * @return specific volume
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificVolumeSaturatedLiquidP(pressure float64) (float64, error) {
 
@@ -2305,7 +2315,7 @@ func (if97 *IF97) SpecificVolumeSaturatedLiquidP(pressure float64) (float64, err
  *
  * @param temperature temperature
  * @return specific volume
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificVolumeSaturatedLiquidT(temperature float64) (float64, error) {
 
@@ -2329,7 +2339,7 @@ func (if97 *IF97) SpecificVolumeSaturatedLiquidT(temperature float64) (float64, 
  *
  * @param pressure absolute pressure
  * @return specific volume
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificVolumeSaturatedVapourP(pressure float64) (float64, error) {
 
@@ -2351,7 +2361,7 @@ func (if97 *IF97) SpecificVolumeSaturatedVapourP(pressure float64) (float64, err
  *
  * @param temperature temperature
  * @return specific volume
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificVolumeSaturatedVapourT(temperature float64) (float64, error) {
 
@@ -2376,7 +2386,7 @@ func (if97 *IF97) SpecificVolumeSaturatedVapourT(temperature float64) (float64, 
  * @param temperature temperature
  * @param vapourFraction vapour fraction [-]
  * @return specific volume
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpecificVolumeTX(temperature float64, vapourFraction float64) (float64, error) {
 
@@ -2401,7 +2411,7 @@ func (if97 *IF97) SpecificVolumeTX(temperature float64, vapourFraction float64) 
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return speed of sound
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #speedOfSoundPT(double, double)
  */
 func (if97 *IF97) SpeedOfSoundHS(enthalpy float64, entropy float64) (float64, error) {
@@ -2428,7 +2438,7 @@ func (if97 *IF97) SpeedOfSoundHS(enthalpy float64, entropy float64) (float64, er
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return speed of sound
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #speedOfSoundPT(double, double)
  */
 func (if97 *IF97) SpeedOfSoundPH(pressure float64, enthalpy float64) (float64, error) {
@@ -2458,7 +2468,7 @@ func (if97 *IF97) SpeedOfSoundPH(pressure float64, enthalpy float64) (float64, e
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return speed of sound
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #speedOfSoundPT(double, double)
  */
 func (if97 *IF97) SpeedOfSoundPS(pressure float64, entropy float64) (float64, error) {
@@ -2485,7 +2495,7 @@ func (if97 *IF97) SpeedOfSoundPS(pressure float64, entropy float64) (float64, er
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return speed of sound
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SpeedOfSoundPT(pressure float64, temperature float64) (float64, error) {
 
@@ -2507,7 +2517,7 @@ func (if97 *IF97) SpeedOfSoundPT(pressure float64, temperature float64) (float64
  *
  * @param pressure absolute pressure
  * @return surface tension
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SurfaceTensionP(pressure float64) (float64, error) {
 
@@ -2530,7 +2540,7 @@ func (if97 *IF97) SurfaceTensionP(pressure float64) (float64, error) {
  *
  * @param temperature temperature
  * @return surface tension
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) SurfaceTensionT(temperature float64) (float64, error) {
 
@@ -2553,7 +2563,7 @@ func (if97 *IF97) SurfaceTensionT(temperature float64) (float64, error) {
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return temperature
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) TemperatureHS(enthalpy float64, entropy float64) (float64, error) {
 
@@ -2561,12 +2571,14 @@ func (if97 *IF97) TemperatureHS(enthalpy float64, entropy float64) (float64, err
 	s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
 	var T float64
 
-	_, err := if97.region.GetRegionHS(h, s)
+	reg, err := if97.region.GetRegionHS(h, s)
 	if err != nil {
 		return -1, err
 	}
 	T = if97.region.TemperatureHS(h, s)
-
+	if reg==5 && math.IsNaN(T){
+		return -1, errors.New("region 5 TemperatureHS unimplemented, Im sorry")
+	}
 	return if97.ConvertFromDefault(if97.UnitSystem.TEMPERATURE, T), err
 }
 
@@ -2576,7 +2588,7 @@ func (if97 *IF97) TemperatureHS(enthalpy float64, entropy float64) (float64, err
  * @param pressure absolute pressure [MPa]
  * @param enthalpy specific enthalpy [kJ/(kg)]
  * @return temperature [K]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) TemperaturePH(pressure float64, enthalpy float64) (float64, error) {
 
@@ -2584,12 +2596,17 @@ func (if97 *IF97) TemperaturePH(pressure float64, enthalpy float64) (float64, er
 	h := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTHALPY, enthalpy)
 	var T float64
 
-	_, err := if97.region.GetRegionPH(p, h)
+	reg, err := if97.region.GetRegionPH(p, h)
 	if err != nil {
 		return -1, err
 	}
 	T = if97.region.TemperaturePH(p, h)
-
+	if math.IsNaN(T) && reg==3{
+		return -1, errors.New("unsupported subregion in region 3 TemperaturePH")
+	}
+	if math.IsNaN(T) && reg==5{
+		return -1, errors.New("region 5 TemperaturePH unimplemented, Im sorry")
+	}
 	return if97.ConvertFromDefault(if97.UnitSystem.TEMPERATURE, T), err
 }
 
@@ -2599,7 +2616,7 @@ func (if97 *IF97) TemperaturePH(pressure float64, enthalpy float64) (float64, er
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return temperature
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) TemperaturePS(pressure float64, entropy float64) (float64, error) {
 
@@ -2607,12 +2624,19 @@ func (if97 *IF97) TemperaturePS(pressure float64, entropy float64) (float64, err
 	s := if97.ConvertToDefault(if97.UnitSystem.SPECIFIC_ENTROPY, entropy)
 	var T float64
 
-	_, err := if97.region.GetRegionPS(p, s)
+	reg, err := if97.region.GetRegionPS(p, s)
 	if err != nil {
 		return -1, err
 	}
 	T = if97.region.TemperaturePS(p, s)
+	if math.IsNaN(T) && reg==3{
+		return -1, errors.New("unsupported subregion in region 3 TemperaturePS")
+	}
+	if math.IsNaN(T) && reg==5{
+		return -1, errors.New("TemperaturePS region 5 unimplemented, Im sorry")
+	}
 
+	
 	return if97.ConvertFromDefault(if97.UnitSystem.TEMPERATURE, T), err
 }
 
@@ -2623,7 +2647,7 @@ func (if97 *IF97) TemperaturePS(pressure float64, entropy float64) (float64, err
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return thermal conductivity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #thermalConductivityRhoT(double, double)
  */
 func (if97 *IF97) ThermalConductivityHS(enthalpy float64, entropy float64) (float64, error) {
@@ -2649,7 +2673,7 @@ func (if97 *IF97) ThermalConductivityHS(enthalpy float64, entropy float64) (floa
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return thermal conductivity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #thermalConductivityRhoT(double, double)
  */
 func (if97 *IF97) ThermalConductivityPH(pressure float64, enthalpy float64) (float64, error) {
@@ -2675,7 +2699,7 @@ func (if97 *IF97) ThermalConductivityPH(pressure float64, enthalpy float64) (flo
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return thermal conductivity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #thermalConductivityRhoT(double, double)
  */
 func (if97 *IF97) ThermalConductivityPS(pressure float64, entropy float64) (float64, error) {
@@ -2703,7 +2727,7 @@ func (if97 *IF97) ThermalConductivityPS(pressure float64, entropy float64) (floa
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return thermal conductivity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #thermalConductivityRhoT(double, double)
  */
 func (if97 *IF97) ThermalConductivityPT(pressure float64, temperature float64) (float64, error) {
@@ -2727,7 +2751,7 @@ func (if97 *IF97) ThermalConductivityPT(pressure float64, temperature float64) (
  * @param density density
  * @param temperature temperature
  * @return thermal conductivity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) ThermalConductivityRhoT(density float64, temperature float64) (float64, error) {
 
@@ -2762,7 +2786,7 @@ func (if97 *IF97) ThermalConductivityRhoT(density float64, temperature float64) 
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return thermal diffusivity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) ThermalDiffusivityHS(enthalpy float64, entropy float64) (float64, error) {
 
@@ -2789,7 +2813,7 @@ func (if97 *IF97) ThermalDiffusivityHS(enthalpy float64, entropy float64) (float
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return thermal diffusivity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) ThermalDiffusivityPH(pressure float64, enthalpy float64) (float64, error) {
 
@@ -2811,7 +2835,7 @@ func (if97 *IF97) ThermalDiffusivityPH(pressure float64, enthalpy float64) (floa
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return thermal diffusivity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) ThermalDiffusivityPS(pressure float64, entropy float64) (float64, error) {
 
@@ -2840,7 +2864,7 @@ func (if97 *IF97) ThermalDiffusivityPS(pressure float64, entropy float64) (float
  * @param pressure absolute pressure
  * @param temperature temperature
  * @return thermal diffusivity
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) ThermalDiffusivityPT(pressure float64, temperature float64) (float64, error) {
 
@@ -2868,7 +2892,7 @@ func (if97 *IF97) ThermalDiffusivityPT(pressure float64, temperature float64) (f
  * @param enthalpy specific enthalpy
  * @param entropy specific entropy
  * @return vapour fraction [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  */
 func (if97 *IF97) VapourFractionHS(enthalpy float64, entropy float64) (float64, error) {
 
@@ -2891,7 +2915,7 @@ func (if97 *IF97) VapourFractionHS(enthalpy float64, entropy float64) (float64, 
  * @param pressure absolute pressure
  * @param enthalpy specific enthalpy
  * @return vapour fraction [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #vapourFractionHS(double, double)
  */
 func (if97 *IF97) VapourFractionPH(pressure float64, enthalpy float64) (float64, error) {
@@ -2916,7 +2940,7 @@ func (if97 *IF97) VapourFractionPH(pressure float64, enthalpy float64) (float64,
  * @param pressure absolute pressure
  * @param entropy specific entropy
  * @return vapour fraction [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #vapourFractionHS(double, double)
  */
 func (if97 *IF97) VapourFractionPS(pressure float64, entropy float64) (float64, error) {
@@ -2940,7 +2964,7 @@ func (if97 *IF97) VapourFractionPS(pressure float64, entropy float64) (float64, 
  * @param temperature temperature
  * @param entropy specific entropy
  * @return vapour fraction [-]
- * @throws OutOfRangeException out-of-range exception
+ * @return RangeError
  * @see #vapourFractionHS(double, double)
  */
 func (if97 *IF97) VapourFractionTS(temperature float64, entropy float64) (float64, error) {

@@ -1,6 +1,7 @@
 package IF97
 
 import (
+	"if97.com/cmd/lib/utils/quantity"
 	"if97.com/cmd/lib/utils/units"
 )
 
@@ -118,13 +119,13 @@ type IF97calc interface {
 	 * @return compression factor
 	 * @throws OutOfRangeException out-of-range exception
 	 */
-	// CompressionFactorPT(pressure float64, temperature float64) (float64, error)
+	CompressionFactorPT(pressure float64, temperature float64) (float64, error)
 
-	// ConvertFromDefaultQuantity(us units.UnitSystem, quantity quantity.Quantity, value float64)
+	ConvertFromDefaultQuantity(us units.UnitSystem, quantity quantity.Quantity, value float64) (float64, error) 
 
-	// ConvertFromDefault(quantity []float64, value float64)
+	ConvertFromDefault(quantity []float64, value float64) float64 
 
-	// ConvertToDefault(quantity []float64, value float64)
+	ConvertToDefault(quantity []float64, value float64) float64 
 
 	/**
 	 * Density as a function of specific enthalpy &amp; specific entropy.
