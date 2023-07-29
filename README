@@ -1,9 +1,10 @@
-IF97 - water and steam properties
+#IF97 - water and steam properties
 
-Steam tables for industrial use according to the international standard for the properties of water and steam,
-the IAPWS-IF97 formulation and the international standards for transport and other properties.
+##Steam tables for industrial use according to the international standard for the properties of water and steam,
+##the IAPWS-IF97 formulation and the international standards for transport and other properties.
 
-Use:
+#Use:
+```
 package main
 
 import (
@@ -17,9 +18,10 @@ func main() {
 	p,err:=if97.SaturationTemperatureP(20) //MPa cuz unit system is 1 -> IF97.New(1), T in Kelvins
 	fmt.Print(p,err) //638.8959115457051 <nil>
 }
+```
 
-
-Default unit system is  
+#Default unit system is  
+```
 {
     "MPa",
 	"K",
@@ -44,5 +46,6 @@ Default unit system is
 	"m/s",
 	"N/m",
 }
+```
 
-Read docs for more explanation.
+#Read docs for more explanation.
